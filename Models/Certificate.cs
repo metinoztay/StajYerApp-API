@@ -15,7 +15,7 @@ public partial class Certificate
 
     public string? CertDesc { get; set; }
 
-    public DateOnly CertDate { get; set; }
+    public DateTime CertDate { get; set; }
 
     public virtual User User { get; set; } = null!;
 }

@@ -19,7 +19,7 @@ public partial class Advertisement
 
     public string AdvDesc { get; set; } = null!;
 
-    public DateOnly AdvExpirationDate { get; set; }
+    public DateTime AdvExpirationDate { get; set; }
 
     public bool AdvIsActive { get; set; }
 

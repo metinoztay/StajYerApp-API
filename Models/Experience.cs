@@ -15,9 +15,9 @@ public partial class Experience
 
     public string ExpCity { get; set; } = null!;
 
-    public DateOnly ExpStartDate { get; set; }
+    public DateTime ExpStartDate { get; set; }
 
-    public DateOnly? ExpFinishDate { get; set; }
+    public DateTime? ExpFinishDate { get; set; }
 
     public string ExpWorkType { get; set; } = null!;
 

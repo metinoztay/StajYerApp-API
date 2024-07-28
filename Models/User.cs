@@ -15,11 +15,11 @@ public partial class User
 
     public string Upassword { get; set; } = null!;
 
-    public string? Uphone { get; set; }
+    public string Uphone { get; set; } = null!;
 
-    public DateOnly? Ubirthdate { get; set; }
+    public DateTime Ubirthdate { get; set; }
 
-    public string? Ugender { get; set; }
+    public string Ugender { get; set; } = null!;
 
     public string? Ulinkedin { get; set; }
 
