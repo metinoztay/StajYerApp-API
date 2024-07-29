@@ -11,7 +11,7 @@ public partial class Application
 
     public int AdvId { get; set; }
 
-    public DateTime AppDate { get; set; }
+    public string AppDate { get; set; } = null!;
 
     public virtual Advertisement Adv { get; set; } = null!;
 

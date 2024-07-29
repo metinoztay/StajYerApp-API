@@ -13,9 +13,9 @@ public partial class Education
 
     public int ProgId { get; set; }
 
-    public DateTime EduStartDate { get; set; }
+    public string EduStartDate { get; set; } = null!;
 
-    public DateTime? EduFinishDate { get; set; }
+    public string? EduFinishDate { get; set; }
 
     public double EduGano { get; set; }
 

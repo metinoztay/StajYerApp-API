@@ -13,9 +13,9 @@
 
         public string Uphone { get; set; } = null!;
 
-        public DateTime Ubirthdate { get; set; }
+        public string Ubirthdate { get; set; } = null!;
 
-        public string Ugender { get; set; } = null!;
+        public bool Ugender { get; set; }
 
         public string? Ulinkedin { get; set; }
 

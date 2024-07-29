@@ -17,9 +17,9 @@ public partial class User
 
     public string Uphone { get; set; } = null!;
 
-    public DateTime Ubirthdate { get; set; }
+    public string Ubirthdate { get; set; } = null!;
 
-    public string Ugender { get; set; } = null!;
+    public bool Ugender { get; set; }
 
     public string? Ulinkedin { get; set; }
 
@@ -33,6 +33,10 @@ public partial class User
 
     public bool Uisactive { get; set; }
 
+    public bool UisEmailVerified { get; set; }
+
+    public bool UisPhoneVerified { get; set; }
+
     public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
 
     public virtual ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
@@ -42,4 +46,6 @@ public partial class User
     public virtual ICollection<Experience> Experiences { get; set; } = new List<Experience>();
 
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
+
+    public virtual ICollection<UserForgotPassword> UserForgotPasswords { get; set; } = new List<UserForgotPassword>();
 }

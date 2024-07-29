@@ -41,7 +41,7 @@ namespace StajYerApp_API.Controllers
                 Uphone = newUser.Uphone,
                 Ubirthdate = newUser.Ubirthdate,
                 Ugender = newUser.Ugender,
-                Uprofilephoto = Path.Combine(Directory.GetCurrentDirectory(), "Assets/Images", "blank_profile_photo.jpg"),
+                Uprofilephoto = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
                 Uisactive = true
             };
 
@@ -225,7 +225,8 @@ namespace StajYerApp_API.Controllers
                 return NotFound();
             }
 
-            user.Uprofilephoto = Path.Combine(Directory.GetCurrentDirectory(), "Assets/Images", "blank_profile_photo.jpg");
+            //profile photo düzenlenecek
+            user.Uprofilephoto = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
 
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();

@@ -31,11 +31,11 @@ public partial class Db6761Context : DbContext
 
     public virtual DbSet<Project> Projects { get; set; }
 
-    public virtual DbSet<TblTest> TblTests { get; set; }
-
     public virtual DbSet<Univercity> Univercities { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+    public virtual DbSet<UserForgotPassword> UserForgotPasswords { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -54,6 +54,9 @@ public partial class Db6761Context : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.AdvDesc).IsUnicode(false);
+            entity.Property(e => e.AdvExpirationDate)
+                .HasMaxLength(25)
+                .IsUnicode(false);
             entity.Property(e => e.AdvTitle)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -70,6 +73,10 @@ public partial class Db6761Context : DbContext
         modelBuilder.Entity<Application>(entity =>
         {
             entity.HasKey(e => e.AppId);
+
+            entity.Property(e => e.AppDate)
+                .HasMaxLength(25)
+                .IsUnicode(false);
 
             entity.HasOne(d => d.Adv).WithMany(p => p.Applications)
                 .HasForeignKey(d => d.AdvId)
@@ -88,6 +95,9 @@ public partial class Db6761Context : DbContext
 
             entity.Property(e => e.CerCompanyName)
                 .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.CertDate)
+                .HasMaxLength(25)
                 .IsUnicode(false);
             entity.Property(e => e.CertDesc)
                 .HasMaxLength(500)
@@ -118,6 +128,10 @@ public partial class Db6761Context : DbContext
             entity.Property(e => e.CompDesc)
                 .HasMaxLength(500)
                 .IsUnicode(false);
+            entity.Property(e => e.CompFoundationYear)
+                .HasMaxLength(4)
+                .IsUnicode(false)
+                .IsFixedLength();
             entity.Property(e => e.CompLogo)
                 .HasMaxLength(255)
                 .IsUnicode(false);
@@ -139,8 +153,14 @@ public partial class Db6761Context : DbContext
             entity.Property(e => e.EduDesc)
                 .HasMaxLength(500)
                 .IsUnicode(false);
+            entity.Property(e => e.EduFinishDate)
+                .HasMaxLength(25)
+                .IsUnicode(false);
             entity.Property(e => e.EduSituation)
                 .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.EduStartDate)
+                .HasMaxLength(25)
                 .IsUnicode(false);
 
             entity.HasOne(d => d.Prog).WithMany(p => p.Educations)
@@ -172,8 +192,14 @@ public partial class Db6761Context : DbContext
             entity.Property(e => e.ExpDesc)
                 .HasMaxLength(500)
                 .IsUnicode(false);
+            entity.Property(e => e.ExpFinishDate)
+                .HasMaxLength(25)
+                .IsUnicode(false);
             entity.Property(e => e.ExpPosition)
                 .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.ExpStartDate)
+                .HasMaxLength(25)
                 .IsUnicode(false);
             entity.Property(e => e.ExpWorkType)
                 .HasMaxLength(20)
@@ -217,18 +243,6 @@ public partial class Db6761Context : DbContext
                 .HasConstraintName("FK_Projects_Users");
         });
 
-        modelBuilder.Entity<TblTest>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__tbl_test");
-
-            entity.ToTable("tbl_test");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.TestKolon)
-                .HasMaxLength(50)
-                .HasColumnName("testKolon");
-        });
-
         modelBuilder.Entity<Univercity>(entity =>
         {
             entity.HasKey(e => e.UniId);
@@ -240,6 +254,9 @@ public partial class Db6761Context : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
+            entity.Property(e => e.Ubirthdate)
+                .HasMaxLength(25)
+                .IsUnicode(false);
             entity.Property(e => e.Ucv)
                 .HasMaxLength(255)
                 .IsUnicode(false);
@@ -249,10 +266,6 @@ public partial class Db6761Context : DbContext
             entity.Property(e => e.Uemail)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.Ugender)
-                .HasMaxLength(1)
-                .IsUnicode(false)
-                .IsFixedLength();
             entity.Property(e => e.Ugithub)
                 .HasMaxLength(255)
                 .IsUnicode(false);
@@ -272,6 +285,21 @@ public partial class Db6761Context : DbContext
             entity.Property(e => e.Usurname)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<UserForgotPassword>(entity =>
+        {
+            entity.HasKey(e => e.ForgotId).HasName("PK__UserForgotPasswords");
+
+            entity.Property(e => e.ExpirationTime).HasColumnType("datetime");
+            entity.Property(e => e.VerifyCode)
+                .HasMaxLength(6)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserForgotPasswords)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserForgotPasswords_Users");
         });
 
         OnModelCreatingPartial(modelBuilder);

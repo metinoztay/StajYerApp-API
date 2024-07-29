@@ -9,7 +9,7 @@ public partial class Company
 
     public string CompName { get; set; } = null!;
 
-    public short CompFoundationYear { get; set; }
+    public string CompFoundationYear { get; set; } = null!;
 
     public string CompWebSite { get; set; } = null!;
 
