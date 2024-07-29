@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StajYerApp_API.DTOs;
 using StajYerApp_API.Models;
+using StajYerApp_API.Services;
 using static System.Net.Mime.MediaTypeNames;
 using static System.Net.WebRequestMethods;
 
@@ -13,14 +14,16 @@ namespace StajYerApp_API.Controllers
     public class UserController : ControllerBase
     {
         private readonly Db6761Context _context;
+        private readonly IEmailService _emailService;
 
         /// <summary>
         /// UserController Db6761Context ile başlatır
         /// </summary>
         /// <param name="context">Uygulamanın veritabanı bağlantısı yapılıyor</param>
-        public UserController(Db6761Context context)
+        public UserController(Db6761Context context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         #region Kullanıcı Kayıt
@@ -32,6 +35,15 @@ namespace StajYerApp_API.Controllers
         [HttpPost("Register")]
         public async Task<ActionResult<User>> Register([FromBody] NewUserModel newUser)
         {
+            
+            var existingUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.Uemail == newUser.Uemail.ToLower() || u.Uphone == newUser.Uphone);
+
+            if (existingUser != null)
+            {
+                return BadRequest("Bu email veya telefon numarası ile daha önce kayıt oluşturulmuş");
+            }
+
             var addedUser = new User
             {
                 Uname = Utilities.CapitalizeFirstLetter(newUser.Uname),
@@ -199,7 +211,7 @@ namespace StajYerApp_API.Controllers
 
             var updatedUser = new User
             {
-                
+
                 Uname = Utilities.CapitalizeFirstLetter(updateUser.Uname),
                 Usurname = updateUser.Usurname.ToUpper(),
                 Uemail = updateUser.Uemail.ToLower(),
@@ -212,11 +224,11 @@ namespace StajYerApp_API.Controllers
                 Ucv = updateUser.Ucv,
                 Udesc = updateUser.Udesc,
             };
-            
+
 
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-             
+
             return NoContent();
         }
         #endregion
@@ -249,5 +261,99 @@ namespace StajYerApp_API.Controllers
             return NoContent();
         }
         #endregion
+
+
+
+        #region Kullanıcı şifremi unuttum
+        /// <summary>
+        /// Kullanıcı şifremi unuttum
+        /// </summary>
+        /// <param name="email">hesaba aşt email</param>
+        /// <returns></returns>
+        [HttpPost("ForgotPassword")]
+        public async Task<IActionResult> ForgotPassword([FromBody] string email)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Uemail == email);
+
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            var verificationCode = new Random().Next(100000, 999999).ToString();
+
+            var userForgotPassword = new UserForgotPassword
+            {
+                UserId = user.UserId,
+                VerifyCode = verificationCode,
+                ExpirationTime = DateTime.UtcNow.AddMinutes(5) // kodun geçerlilik süresi 5 dakika
+            };
+
+            _context.UserForgotPasswords.Add(userForgotPassword);
+            await _context.SaveChangesAsync();
+
+            await _emailService.SendVerificationCodeAsync(user.Uemail, verificationCode);
+
+            return Ok("Verification code sent to your email");
+        }
+        #endregion
+
+        #region Kodu doğrulama endpoint
+        /// <summary>
+        /// Kodu doğrulama endpointi. Farklı işlemler için kullanılabilir veya silinebilir
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost("VerifyCode")]
+        public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeModel model)
+        {
+            var record = await _context.UserForgotPasswords
+                .FirstOrDefaultAsync(u => u.UserId == model.UserId && u.VerifyCode == model.Code && u.ExpirationTime > DateTime.UtcNow);
+
+            if (record == null)
+            {
+                return BadRequest("Invalid or expired verification code");
+            }
+
+            
+            return Ok("Verification successful");
+        }
+
+        #endregion
+
+        #region reset password
+        /// <summary>
+        /// Kullanıcı şifre sıfırlama
+        /// </summary>
+        /// <param name="model">UserId - VerificationCode - NewPassword değerlerini paramatere alır</param>
+        /// <returns></returns>
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
+        {
+            var record = await _context.UserForgotPasswords
+                .FirstOrDefaultAsync(u => u.UserId == model.UserId && u.VerifyCode == model.Code && u.ExpirationTime > DateTime.UtcNow);
+
+            if (record == null)
+            {
+                return BadRequest("Invalid or expired verification code");
+            }
+
+            var user = await _context.Users.FindAsync(model.UserId);
+            if (user == null)
+            {
+                return NotFound("User not found");
+            }
+
+            user.Upassword = model.NewPassword;
+            _context.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return Ok("Password reset successful");
+        }
+        #endregion
+
+
+
     }
 }
+
