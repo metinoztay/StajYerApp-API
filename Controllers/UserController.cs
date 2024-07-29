@@ -94,6 +94,21 @@ namespace StajYerApp_API.Controllers
         }
         #endregion
 
+        #region Kullancı bilgilerini getirme
+        [HttpGet("GetUser/{userId}")]
+        public async Task<ActionResult> ListAllAdverts(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(user);
+        }
+        #endregion
+
         #region Kullanıcı Deaktif Etme
         /// <summary>
         /// belirtilen id'ye sahip kullanıcıyı deaktif eder

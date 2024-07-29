@@ -5,7 +5,7 @@ namespace StajYerApp_API.Models;
 
 public partial class Advertisement
 {
-    public int AdvId { get; set; }
+    public int AdvertId { get; set; }
 
     public int CompId { get; set; }
 
@@ -19,11 +19,13 @@ public partial class Advertisement
 
     public string AdvDesc { get; set; } = null!;
 
-    public string AdvExpirationDate { get; set; } = null!;
+    public DateTime AdvExpirationDate { get; set; }
 
     public bool AdvIsActive { get; set; }
 
     public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
 
     public virtual Company Comp { get; set; } = null!;
+
+    public virtual ICollection<UsersSavedAdvert> UsersSavedAdverts { get; set; } = new List<UsersSavedAdvert>();
 }

@@ -37,6 +37,8 @@ public partial class Db6761Context : DbContext
 
     public virtual DbSet<UserForgotPassword> UserForgotPasswords { get; set; }
 
+    public virtual DbSet<UsersSavedAdvert> UsersSavedAdverts { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=db6761.public.databaseasp.net; Database=db6761; User Id=db6761; Password=Nz3_9#aF@B5y; Encrypt=True; TrustServerCertificate=True; MultipleActiveResultSets=True;Connection Timeout=30");
@@ -45,7 +47,7 @@ public partial class Db6761Context : DbContext
     {
         modelBuilder.Entity<Advertisement>(entity =>
         {
-            entity.HasKey(e => e.AdvId);
+            entity.HasKey(e => e.AdvertId);
 
             entity.Property(e => e.AdvAdress)
                 .HasMaxLength(255)
@@ -54,9 +56,7 @@ public partial class Db6761Context : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.AdvDesc).IsUnicode(false);
-            entity.Property(e => e.AdvExpirationDate)
-                .HasMaxLength(25)
-                .IsUnicode(false);
+            entity.Property(e => e.AdvExpirationDate).HasColumnType("datetime");
             entity.Property(e => e.AdvTitle)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -77,9 +77,12 @@ public partial class Db6761Context : DbContext
             entity.Property(e => e.AppDate)
                 .HasMaxLength(25)
                 .IsUnicode(false);
+            entity.Property(e => e.AppLetter)
+                .HasMaxLength(1000)
+                .IsUnicode(false);
 
-            entity.HasOne(d => d.Adv).WithMany(p => p.Applications)
-                .HasForeignKey(d => d.AdvId)
+            entity.HasOne(d => d.Advert).WithMany(p => p.Applications)
+                .HasForeignKey(d => d.AdvertId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Applications_Advertisements");
 
@@ -300,6 +303,21 @@ public partial class Db6761Context : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UserForgotPasswords_Users");
+        });
+
+        modelBuilder.Entity<UsersSavedAdvert>(entity =>
+        {
+            entity.HasKey(e => e.SavedAdvertId);
+
+            entity.HasOne(d => d.Advert).WithMany(p => p.UsersSavedAdverts)
+                .HasForeignKey(d => d.AdvertId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersSavedAdverts_Advertisements");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UsersSavedAdverts)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UsersSavedAdverts_Users");
         });
 
         OnModelCreatingPartial(modelBuilder);
