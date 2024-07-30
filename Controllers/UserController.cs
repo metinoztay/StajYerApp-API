@@ -262,8 +262,6 @@ namespace StajYerApp_API.Controllers
         }
         #endregion
 
-
-
         #region Kullanıcı şifremi unuttum
         /// <summary>
         /// Kullanıcı şifremi unuttum
