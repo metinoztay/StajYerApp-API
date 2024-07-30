@@ -72,47 +72,7 @@ namespace StajYerApp_API.Controllers
             return CreatedAtAction(nameof(GetUserCertificate), new { userId = newCertificate.UserId, certId = newCertificate.CertId }, newCertificate);
         }
 
-        // PUT: api/Certificates/{certId}
-        [HttpPut("{certId}")]
-        public async Task<IActionResult> UpdateCertificate(int certId, CertificatesModel certificateDTO)
-        {
-            if (certId != certificateDTO.CertId)
-            {
-                return BadRequest();
-            }
-
-            var certificate = await _context.Certificates.FindAsync(certId);
-            if (certificate == null)
-            {
-                return NotFound();
-            }
-
-            certificate.UserId = certificateDTO.UserId;
-            certificate.CertName = certificateDTO.CertName;
-            certificate.CerCompanyName = certificateDTO.CerCompanyName;
-            certificate.CertDesc = certificateDTO.CertDesc;
-            certificate.CertDate = certificateDTO.CertDate;
-
-            _context.Entry(certificate).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CertificateExists(certId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
+        
 
         // DELETE: api/Certificates/{certId}
         [HttpDelete("{certId}")]

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using StajYerApp_API.DTOs;
 using StajYerApp_API.Models;
 
 namespace StajYerApp_API.Controllers
@@ -39,13 +40,13 @@ namespace StajYerApp_API.Controllers
 
 
         #region id'ye göre projeleri listele
-        // api/Projects/{userId}/{projectId}
-        [HttpGet("{userId}/{projectId}")]
-        public async Task<ActionResult<Project>> GetUserProject(int userId, int projectId)
+        // api/Projects/{userId}/{ProId}
+        [HttpGet("{userId}/{ProId}")]
+        public async Task<ActionResult<Project>> GetUserProject(int userId, int ProId)
         {
             var project = await _context.Projects
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.UserId == userId && p.ProId == projectId);
+                .FirstOrDefaultAsync(p => p.UserId == userId && p.ProId == ProId);
 
             if (project == null)
             {
@@ -55,5 +56,49 @@ namespace StajYerApp_API.Controllers
             return Ok(project);
         }
         #endregion
+
+
+
+        // POST: api/Project
+        [HttpPost]
+        public async Task<ActionResult<Project>> AddProject(ProjectsModel projectsDTO)
+        {
+            var newProject = new Project
+            {
+                UserId = projectsDTO.UserId,
+                ProName = projectsDTO.ProName,
+                ProGithub = projectsDTO.ProGithub,
+                ProDesc = projectsDTO.ProDesc,
+                
+            };
+
+            _context.Projects.Add(newProject);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetUserProject), new { userId = newProject.UserId, ProId = newProject.ProId }, newProject);
+        }
+
+
+
+        // DELETE: api/Project/{proId}
+        [HttpDelete("{ProId}")]
+        public async Task<IActionResult> DeleteProject(int ProId)
+        {
+            var project = await _context.Projects.FindAsync(ProId);
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            _context.Projects.Remove(project);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool ProjectExists(int id)
+        {
+            return _context.Projects.Any(e => e.ProId == id);
+        }
     }
 }
