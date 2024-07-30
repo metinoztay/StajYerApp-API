@@ -21,7 +21,13 @@ public partial class Db6761Context : DbContext
 
     public virtual DbSet<Certificate> Certificates { get; set; }
 
+    public virtual DbSet<City> Cities { get; set; }
+
     public virtual DbSet<Company> Companies { get; set; }
+
+    public virtual DbSet<CompanyUser> CompanyUsers { get; set; }
+
+    public virtual DbSet<District> Districts { get; set; }
 
     public virtual DbSet<Education> Educations { get; set; }
 
@@ -31,6 +37,8 @@ public partial class Db6761Context : DbContext
 
     public virtual DbSet<Project> Projects { get; set; }
 
+    public virtual DbSet<TaxOffice> TaxOffices { get; set; }
+
     public virtual DbSet<Univercity> Univercities { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
@@ -38,6 +46,8 @@ public partial class Db6761Context : DbContext
     public virtual DbSet<UserForgotPassword> UserForgotPasswords { get; set; }
 
     public virtual DbSet<UsersSavedAdvert> UsersSavedAdverts { get; set; }
+
+    public virtual DbSet<VergiDaireleri> VergiDaireleris { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -52,11 +62,17 @@ public partial class Db6761Context : DbContext
             entity.Property(e => e.AdvAdress)
                 .HasMaxLength(255)
                 .IsUnicode(false);
+            entity.Property(e => e.AdvAdressTitle)
+                .HasMaxLength(150)
+                .IsUnicode(false);
             entity.Property(e => e.AdvDepartment)
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.AdvDesc).IsUnicode(false);
             entity.Property(e => e.AdvExpirationDate).HasColumnType("datetime");
+            entity.Property(e => e.AdvPhoto)
+                .HasMaxLength(500)
+                .IsUnicode(false);
             entity.Property(e => e.AdvTitle)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -115,12 +131,25 @@ public partial class Db6761Context : DbContext
                 .HasConstraintName("FK_Certificates_Users");
         });
 
+        modelBuilder.Entity<City>(entity =>
+        {
+            entity.HasKey(e => e.CityId).HasName("PK__Cities__ACA8AD70C83F73A0");
+
+            entity.Property(e => e.CityId).ValueGeneratedNever();
+            entity.Property(e => e.CityName)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<Company>(entity =>
         {
             entity.HasKey(e => e.CompId);
 
             entity.Property(e => e.ComLinkedin)
                 .HasMaxLength(255)
+                .IsUnicode(false);
+            entity.Property(e => e.CompAddressTitle)
+                .HasMaxLength(50)
                 .IsUnicode(false);
             entity.Property(e => e.CompAdress)
                 .HasMaxLength(255)
@@ -147,6 +176,57 @@ public partial class Db6761Context : DbContext
             entity.Property(e => e.CompWebSite)
                 .HasMaxLength(255)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.CompUser).WithMany(p => p.Companies)
+                .HasForeignKey(d => d.CompUserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Companies_CompanyUsers");
+        });
+
+        modelBuilder.Entity<CompanyUser>(entity =>
+        {
+            entity.HasKey(e => e.CompUserId).HasName("PK__CompanyUsers");
+
+            entity.Property(e => e.Email)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.NameSurname)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Password)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Phone)
+                .HasMaxLength(15)
+                .IsUnicode(false);
+            entity.Property(e => e.TaxNumber)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.TaxCity).WithMany(p => p.CompanyUsers)
+                .HasForeignKey(d => d.TaxCityId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CompanyUsers_Cities");
+
+            entity.HasOne(d => d.TaxOffice).WithMany(p => p.CompanyUsers)
+                .HasForeignKey(d => d.TaxOfficeId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CompanyUsers_TaxOffices");
+        });
+
+        modelBuilder.Entity<District>(entity =>
+        {
+            entity.HasKey(e => e.DistId).HasName("PK__ilce__441DEE1B4C05E46F");
+
+            entity.Property(e => e.DistId).ValueGeneratedNever();
+            entity.Property(e => e.DistName)
+                .HasMaxLength(55)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.City).WithMany(p => p.Districts)
+                .HasForeignKey(d => d.CityId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Districts_Cities");
         });
 
         modelBuilder.Entity<Education>(entity =>
@@ -246,6 +326,27 @@ public partial class Db6761Context : DbContext
                 .HasConstraintName("FK_Projects_Users");
         });
 
+        modelBuilder.Entity<TaxOffice>(entity =>
+        {
+            entity.HasKey(e => e.TaxOfficeId).HasName("PK__TaxOffic__3213E83FA72FA935");
+
+            entity.Property(e => e.TaxOfficeId).ValueGeneratedNever();
+            entity.Property(e => e.City)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.District)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Office)
+                .HasMaxLength(255)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.CityNavigation).WithMany(p => p.TaxOffices)
+                .HasForeignKey(d => d.CityId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_TaxOffices_Cities");
+        });
+
         modelBuilder.Entity<Univercity>(entity =>
         {
             entity.HasKey(e => e.UniId);
@@ -318,6 +419,31 @@ public partial class Db6761Context : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UsersSavedAdverts_Users");
+        });
+
+        modelBuilder.Entity<VergiDaireleri>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__vergi_da__3213E83FD646F1A5");
+
+            entity.ToTable("vergi_daireleri");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Daire)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("daire");
+            entity.Property(e => e.Il)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasColumnName("il");
+            entity.Property(e => e.Ilce)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("ilce");
+            entity.Property(e => e.Plaka)
+                .HasMaxLength(3)
+                .IsUnicode(false)
+                .HasColumnName("plaka");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -17,6 +17,8 @@ public partial class Company
 
     public string CompAdress { get; set; } = null!;
 
+    public string CompAddressTitle { get; set; } = null!;
+
     public string CompSektor { get; set; } = null!;
 
     public string CompDesc { get; set; } = null!;
@@ -27,5 +29,9 @@ public partial class Company
 
     public int CompEmployeeCount { get; set; }
 
+    public int CompUserId { get; set; }
+
     public virtual ICollection<Advertisement> Advertisements { get; set; } = new List<Advertisement>();
+
+    public virtual CompanyUser CompUser { get; set; } = null!;
 }

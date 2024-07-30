@@ -23,6 +23,12 @@ public partial class Advertisement
 
     public bool AdvIsActive { get; set; }
 
+    public string? AdvPhoto { get; set; }
+
+    public string AdvAdressTitle { get; set; } = null!;
+
+    public bool? AdvPaymentInfo { get; set; }
+
     public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
 
     public virtual Company Comp { get; set; } = null!;
