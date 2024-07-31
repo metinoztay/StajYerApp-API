@@ -51,5 +51,57 @@ namespace StajYerApp_API.Controllers
             return Ok(company);
         }
         #endregion
+
+        #region Şirket Ekleme
+        [HttpPost("AddCompany")]
+        public async Task<ActionResult> AddCompany(NewCompanyModel newCompany)
+        {
+            
+            var company = new Company
+            {
+                CompName = newCompany.CompName,
+                CompFoundationYear = newCompany.CompFoundationYear,
+                CompWebSite = newCompany.CompWebSite,
+                CompContactMail = newCompany.CompContactMail,
+                CompAdress = newCompany.CompAdress + " " + newCompany.CompAddressTitle,
+                CompAddressTitle = newCompany.CompAddressTitle,
+                CompSektor = newCompany.CompSektor,
+                CompDesc = newCompany.CompDesc,
+                CompLogo = newCompany.CompLogo,
+                ComLinkedin = newCompany.ComLinkedin,
+                CompEmployeeCount = newCompany.CompEmployeeCount,
+                CompUserId = newCompany.CompUserId
+            };
+ 
+            _context.Companies.Add(company);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        #endregion
+
+        #region Şirket Bilgilerini Güncelleme
+        [HttpPut("UpdateCompany")]
+        public async Task<ActionResult> UpdateCompany(UpdateCompanyModel updateCompany)
+        {
+
+            var company = await _context.Companies.FindAsync(updateCompany.CompId);
+            company.CompName = updateCompany.CompName;
+            company.CompFoundationYear = updateCompany.CompFoundationYear;
+            company.CompWebSite = updateCompany.CompWebSite;
+            company.CompContactMail = updateCompany.CompContactMail;
+            company.CompAdress = updateCompany.CompAdress + " " + updateCompany.CompAddressTitle;
+            company.CompAddressTitle = updateCompany.CompAddressTitle;
+            company.CompSektor = updateCompany.CompSektor;
+            company.CompDesc = updateCompany.CompDesc;
+            company.CompLogo = updateCompany.CompLogo;
+            company.ComLinkedin = updateCompany.ComLinkedin;
+            company.CompEmployeeCount = updateCompany.CompEmployeeCount;
+
+
+            _context.Entry(company).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        #endregion
     }
 }
