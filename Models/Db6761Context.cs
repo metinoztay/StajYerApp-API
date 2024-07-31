@@ -57,6 +57,9 @@ public partial class Db6761Context : DbContext
         {
             entity.HasKey(e => e.AdvertId);
 
+            entity.Property(e => e.AdvAddInformation)
+                .HasMaxLength(1000)
+                .IsUnicode(false);
             entity.Property(e => e.AdvAdress)
                 .HasMaxLength(255)
                 .IsUnicode(false);
@@ -66,10 +69,15 @@ public partial class Db6761Context : DbContext
             entity.Property(e => e.AdvDepartment)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.AdvDesc).IsUnicode(false);
             entity.Property(e => e.AdvExpirationDate).HasColumnType("datetime");
+            entity.Property(e => e.AdvJobDesc)
+                .HasMaxLength(1000)
+                .IsUnicode(false);
             entity.Property(e => e.AdvPhoto)
                 .HasMaxLength(500)
+                .IsUnicode(false);
+            entity.Property(e => e.AdvQualifications)
+                .HasMaxLength(1000)
                 .IsUnicode(false);
             entity.Property(e => e.AdvTitle)
                 .HasMaxLength(100)

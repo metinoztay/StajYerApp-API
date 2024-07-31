@@ -17,8 +17,6 @@ public partial class Advertisement
 
     public string AdvDepartment { get; set; } = null!;
 
-    public string AdvDesc { get; set; } = null!;
-
     public DateTime AdvExpirationDate { get; set; }
 
     public bool AdvIsActive { get; set; }
@@ -28,6 +26,12 @@ public partial class Advertisement
     public string AdvAdressTitle { get; set; } = null!;
 
     public bool? AdvPaymentInfo { get; set; }
+
+    public string AdvJobDesc { get; set; } = null!;
+
+    public string AdvQualifications { get; set; } = null!;
+
+    public string AdvAddInformation { get; set; } = null!;
 
     public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
 

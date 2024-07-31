@@ -47,10 +47,11 @@ namespace StajYerApp_API.Controllers
             {
                 return NotFound();
             }
-
+            
             foreach (var app in apps) {
                 var user = await _context.Users.FindAsync(app.UserId);
-                appliedUsers.Add(user);
+                if (user != null && user.Uisactive == true)
+                    appliedUsers.Add(user);                
             }
             return Ok(appliedUsers);
         }

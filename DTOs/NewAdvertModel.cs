@@ -16,7 +16,11 @@ namespace StajYerApp_API.DTOs
 
         public string AdvDepartment { get; set; } = null!;
 
-        public string AdvDesc { get; set; } = null!;
+        public string AdvJobDesc { get; set; } = null!;
+
+        public string AdvQualifications { get; set; } = null!;
+
+        public string AdvAddInformation { get; set; } = null!;
 
         public DateTime AdvExpirationDate { get; set; }
 
