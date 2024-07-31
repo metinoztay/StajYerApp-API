@@ -20,8 +20,8 @@ namespace StajYerApp_API.Controllers
         }
 
         #region Tüm sertifikaları listele
-        [HttpGet("user/{userId}")]
-        public async Task<ActionResult<IEnumerable<Certificate>>> GetListUserCertificates(int userId)
+        [HttpGet("ListUserCertificates/{userId}")]
+        public async Task<ActionResult<IEnumerable<Certificate>>> ListUserCertificates(int userId)
         {
             var certificates = await _context.Certificates
                 .Where(p => p.UserId == userId)
@@ -37,12 +37,12 @@ namespace StajYerApp_API.Controllers
         #endregion
 
         #region id'ye göre sertifikaları listele
-        [HttpGet("{userId}/{certId}")]
-        public async Task<ActionResult<Certificate>> GetUserCertificate(int userId, int certId)
+        [HttpGet("GetCertificate/{certId}")]
+        public async Task<ActionResult<Certificate>> GetCertificate( int certId)
         {
             var certificate = await _context.Certificates
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.UserId == userId && p.CertId == certId);
+                .FirstOrDefaultAsync(p => p.CertId == certId);
 
             if (certificate == null)
             {
@@ -52,9 +52,9 @@ namespace StajYerApp_API.Controllers
             return Ok(certificate);
         }
         #endregion
-
+        
         // POST: api/Certificates
-        [HttpPost]
+        [HttpPost("AddCertificate")]
         public async Task<ActionResult<Certificate>> AddCertificate(CertificatesModel certificateDTO)
         {
             var newCertificate = new Certificate
@@ -69,12 +69,21 @@ namespace StajYerApp_API.Controllers
             _context.Certificates.Add(newCertificate);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUserCertificate), new { userId = newCertificate.UserId, certId = newCertificate.CertId }, newCertificate);
+            return Ok();
         }
 
-        
+        [HttpDelete("DeleteCertificate")]
+        public async Task<ActionResult<Certificate>> DeleteCertificate(int certificateId)
+        {
+            var certificate = await _context.Certificates.FindAsync(certificateId);
 
-       
+            _context.Certificates.Remove(certificate);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+
 
         private bool CertificateExists(int id)
         {
