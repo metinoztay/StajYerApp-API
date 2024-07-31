@@ -37,7 +37,7 @@ namespace StajYerApp_API.Controllers
 
 
         #region id'ye göre Tectübeleri listele
-        // api/Projects/{userId}/{ProId}
+       
         [HttpGet("GetExperience/{ProId}")]
         public async Task<ActionResult<Project>> GetExperience(int expId)
         {
@@ -55,7 +55,7 @@ namespace StajYerApp_API.Controllers
 
 
 
-        // POST: api/Project
+        
         [HttpPost("AddExperience")]
         public async Task<ActionResult> AddExperience(NewExperienceModel newExperience)
         {
