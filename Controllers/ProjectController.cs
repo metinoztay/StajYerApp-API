@@ -22,8 +22,8 @@ namespace StajYerApp_API.Controllers
 
         #region Tüm projeleri listele
         // api/Projects/user/{userId}
-        [HttpGet("user/{userId}")]
-        public async Task<ActionResult<IEnumerable<Project>>> GetListUserProjects(int userId)
+        [HttpGet("ListUserProjects/{userId}")]
+        public async Task<ActionResult<IEnumerable<Project>>> ListUserProjects(int userId)
         {
             var projects = await _context.Projects
                 .Where(p => p.UserId == userId)
@@ -41,12 +41,12 @@ namespace StajYerApp_API.Controllers
 
         #region id'ye göre projeleri listele
         // api/Projects/{userId}/{ProId}
-        [HttpGet("{userId}/{ProId}")]
-        public async Task<ActionResult<Project>> GetUserProject(int userId, int ProId)
+        [HttpGet("GetProject/{ProId}")]
+        public async Task<ActionResult<Project>> GetProject(int ProId)
         {
             var project = await _context.Projects
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.UserId == userId && p.ProId == ProId);
+                .FirstOrDefaultAsync(p => p.ProId == ProId);
 
             if (project == null)
             {
@@ -60,8 +60,8 @@ namespace StajYerApp_API.Controllers
 
 
         // POST: api/Project
-        [HttpPost]
-        public async Task<ActionResult<Project>> AddProject(ProjectsModel projectsDTO)
+        [HttpPost("AddProject")]
+        public async Task<ActionResult> AddProject(ProjectsModel projectsDTO)
         {
             var newProject = new Project
             {
@@ -75,12 +75,23 @@ namespace StajYerApp_API.Controllers
             _context.Projects.Add(newProject);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetUserProject), new { userId = newProject.UserId, ProId = newProject.ProId }, newProject);
+            return Ok();
         }
 
 
+        [HttpDelete("DeleteProject")]
+        public async Task<ActionResult> DeleteProject(int projectId)
+        {
+            var project = await _context.Projects
+                .FirstOrDefaultAsync(p => p.ProId == projectId);
 
-       
+            _context.Projects.Remove(project);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+
 
         private bool ProjectExists(int id)
         {
