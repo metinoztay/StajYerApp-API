@@ -33,6 +33,8 @@ public partial class Advertisement
 
     public string AdvAddInformation { get; set; } = null!;
 
+    public string? AdvAppCount { get; set; }
+
     public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
 
     public virtual Company Comp { get; set; } = null!;

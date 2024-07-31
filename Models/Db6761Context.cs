@@ -80,6 +80,9 @@ public partial class Db6761Context : DbContext
             entity.Property(e => e.AdvAdressTitle)
                 .HasMaxLength(150)
                 .IsUnicode(false);
+            entity.Property(e => e.AdvAppCount)
+                .HasMaxLength(6)
+                .IsUnicode(false);
             entity.Property(e => e.AdvDepartment)
                 .HasMaxLength(100)
                 .IsUnicode(false);

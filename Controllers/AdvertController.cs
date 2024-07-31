@@ -145,12 +145,21 @@ namespace StajYerApp_API.Controllers
         public async Task<ActionResult> ListCompanyAdverts(int companyId)
         {
             var adverts = await _context.Advertisements.Where(a => a.CompId == companyId).ToListAsync();
-
+            
             if (adverts == null)
             {
                 return NotFound();
             }
 
+            foreach (var advert in adverts)
+            {
+                int count = await _context.Applications
+                    .CountAsync(a => a.AdvertId == advert.AdvertId);
+                advert.AdvAppCount = count.ToString();
+                _context.Entry(advert).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+            adverts = await _context.Advertisements.Where(a => a.CompId == companyId).ToListAsync();
             return Ok(adverts);
         }
         #endregion
