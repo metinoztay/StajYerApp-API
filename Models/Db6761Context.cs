@@ -15,6 +15,8 @@ public partial class Db6761Context : DbContext
     {
     }
 
+    public virtual DbSet<Admin> Admins { get; set; }
+
     public virtual DbSet<Advertisement> Advertisements { get; set; }
 
     public virtual DbSet<Application> Applications { get; set; }
@@ -53,6 +55,18 @@ public partial class Db6761Context : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Admin>(entity =>
+        {
+            entity.HasKey(e => e.AdminId).HasName("PK__Admins");
+
+            entity.Property(e => e.AdminEmail)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.AdminPassword)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<Advertisement>(entity =>
         {
             entity.HasKey(e => e.AdvertId);
