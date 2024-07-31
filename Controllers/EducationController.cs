@@ -22,7 +22,7 @@ namespace StajYerApp_API.Controllers
 
         #region Kullanıcının eğitimlerini listele
         [HttpGet("ListUserEducations/{userId}")]
-        public async Task<ActionResult<IEnumerable<Experience>>> ListUserEducations(int userId)
+        public async Task<ActionResult<IEnumerable<Education>>> ListUserEducations(int userId)
         {
             var educations = await _context.Educations.Where<Education>(e => e.UserId == userId).ToListAsync();
 
