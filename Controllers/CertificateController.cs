@@ -74,21 +74,7 @@ namespace StajYerApp_API.Controllers
 
         
 
-        // DELETE: api/Certificates/{certId}
-        [HttpDelete("{certId}")]
-        public async Task<IActionResult> DeleteCertificate(int certId)
-        {
-            var certificate = await _context.Certificates.FindAsync(certId);
-            if (certificate == null)
-            {
-                return NotFound();
-            }
-
-            _context.Certificates.Remove(certificate);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
+       
 
         private bool CertificateExists(int id)
         {

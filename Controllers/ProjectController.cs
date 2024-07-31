@@ -80,21 +80,7 @@ namespace StajYerApp_API.Controllers
 
 
 
-        // DELETE: api/Project/{proId}
-        [HttpDelete("{ProId}")]
-        public async Task<IActionResult> DeleteProject(int ProId)
-        {
-            var project = await _context.Projects.FindAsync(ProId);
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            _context.Projects.Remove(project);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
+       
 
         private bool ProjectExists(int id)
         {
