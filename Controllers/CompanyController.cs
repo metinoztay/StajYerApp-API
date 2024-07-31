@@ -37,11 +37,26 @@ namespace StajYerApp_API.Controllers
         }
         #endregion
 
-        #region Id ile Şirket Bilgileri Çekme
-        [HttpGet("GetCompanyById/{companyId}")]
-        public async Task<ActionResult> GetCompanyById(int companyId)
+        #region Şirket Id ile Şirket Bilgileri Çekme
+        [HttpGet("GetCompanyByCompanyId/{companyId}")]
+        public async Task<ActionResult> GetCompanyByCompanyId(int companyId)
         {
             var company = await _context.Companies.FindAsync(companyId);
+
+            if (company == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(company);
+        }
+        #endregion
+
+        #region Şirket Kullanıcısı Id ile Şirket Bilgileri Çekme
+        [HttpGet("GetCompanyByCompanUserId/{companyUserId}")]
+        public async Task<ActionResult> GetCompanyByCompanUserId(int companyUserId)
+        {
+            var company = await _context.Companies.FirstOrDefaultAsync<Company>(c => c.CompUserId == companyUserId);
 
             if (company == null)
             {
