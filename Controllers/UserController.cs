@@ -35,7 +35,7 @@ namespace StajYerApp_API.Controllers
         [HttpPost("Register")]
         public async Task<ActionResult<User>> Register([FromBody] NewUserModel newUser)
         {
-            
+
             var existingUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.Uemail == newUser.Uemail.ToLower() || u.Uphone == newUser.Uphone);
 
@@ -198,33 +198,34 @@ namespace StajYerApp_API.Controllers
         /// <summary>
         /// Kullanıcı profili güncelleme
         /// </summary>
+        /// <param name="userId">Güncellenmek istenen kullanıcının ID'si</param>
         /// <param name="updateUser">Güncellenmiş kullanıcı bilgilerini tutar</param>
-        /// <returns>başarılı veya başarısız sonucunu döndürür</returns>
-        [HttpPut("UpdateUser")]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserModel updateUser)
+        /// <returns>Başarılı veya başarısız sonucunu döndürür</returns>
+        [HttpPut("UpdateUser/{userId}")]
+        public async Task<IActionResult> UpdateProfile(int userId, [FromBody] UpdateUserModel updateUser)
         {
-            var user = await _context.Users.FindAsync(updateUser.UserId);
+            if (userId != updateUser.UserId)
+            {
+                return BadRequest("gövdedeki user id ile eşleşmedi");
+            }
+
+            var user = await _context.Users.FindAsync(userId);
             if (user == null)
             {
                 return NotFound();
             }
 
-            var updatedUser = new User
-            {
-
-                Uname = Utilities.CapitalizeFirstLetter(updateUser.Uname),
-                Usurname = updateUser.Usurname.ToUpper(),
-                Uemail = updateUser.Uemail.ToLower(),
-                Upassword = updateUser.Upassword,
-                Uphone = updateUser.Uphone,
-                Ubirthdate = updateUser.Ubirthdate,
-                Ugender = updateUser.Ugender,
-                Ulinkedin = updateUser.Ulinkedin,
-                Ugithub = updateUser.Ugithub,
-                Ucv = updateUser.Ucv,
-                Udesc = updateUser.Udesc,
-            };
-
+            user.Uname = Utilities.CapitalizeFirstLetter(updateUser.Uname);
+            user.Usurname = updateUser.Usurname.ToUpper();
+            user.Uemail = updateUser.Uemail.ToLower();
+            user.Upassword = updateUser.Upassword;
+            user.Uphone = updateUser.Uphone;
+            user.Ubirthdate = updateUser.Ubirthdate;
+            user.Ugender = updateUser.Ugender;
+            user.Ulinkedin = updateUser.Ulinkedin;
+            user.Ugithub = updateUser.Ugithub;
+            user.Ucv = updateUser.Ucv;
+            user.Udesc = updateUser.Udesc;
 
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
@@ -232,6 +233,7 @@ namespace StajYerApp_API.Controllers
             return NoContent();
         }
         #endregion
+
 
         //Profil Photo Güncelleme Eklenecek Kullanıcıdan dosya alınması gerek
 
@@ -313,7 +315,7 @@ namespace StajYerApp_API.Controllers
                 return BadRequest("Invalid or expired verification code");
             }
 
-            
+
             return Ok("Verification successful");
         }
 
