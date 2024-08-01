@@ -35,7 +35,6 @@ namespace StajYerApp_API.Controllers
         [HttpPost("Register")]
         public async Task<ActionResult<User>> Register([FromBody] NewUserModel newUser)
         {
-
             var existingUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.Uemail == newUser.Uemail.ToLower() || u.Uphone == newUser.Uphone);
 
@@ -43,6 +42,8 @@ namespace StajYerApp_API.Controllers
             {
                 return BadRequest("Bu email veya telefon numarası ile daha önce kayıt oluşturulmuş");
             }
+
+            var verificationCode = new Random().Next(100000, 999999).ToString();
 
             var addedUser = new User
             {
@@ -54,12 +55,27 @@ namespace StajYerApp_API.Controllers
                 Ubirthdate = newUser.Ubirthdate,
                 Ugender = newUser.Ugender,
                 Uprofilephoto = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
-                Uisactive = true
+                Uisactive = false, // Kullanıcı aktif değil, e-posta doğrulaması yapılacak
+                UisEmailVerified = false, // E-posta doğrulaması yapılacak
+                UisPhoneVerified = false
             };
 
             _context.Users.Add(addedUser);
             await _context.SaveChangesAsync();
-            return Ok(addedUser);
+
+            var userForgotPassword = new UserForgotPassword
+            {
+                UserId = addedUser.UserId,
+                VerifyCode = verificationCode,
+                ExpirationTime = DateTime.UtcNow.AddMinutes(10) // Kodun geçerlilik süresi 10 dakika
+            };
+
+            _context.UserForgotPasswords.Add(userForgotPassword);
+            await _context.SaveChangesAsync();
+
+            await _emailService.SendVerificationCodeAsync(newUser.Uemail, verificationCode);
+
+            return Ok("Kayıt işlemi başarılı. E-posta doğrulama kodu gönderildi.");
         }
         #endregion
 
@@ -320,6 +336,37 @@ namespace StajYerApp_API.Controllers
         }
 
         #endregion
+
+        [HttpPost("VerifyEmail")]
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyCodeModel model)
+        {
+            var record = await _context.UserForgotPasswords //kodları bu modelde saklıyoruz. daha sonra değiştirilebilir.
+                .FirstOrDefaultAsync(u => u.UserId == model.UserId && u.VerifyCode == model.Code && u.ExpirationTime > DateTime.UtcNow);
+
+            if (record == null)
+            {
+                return BadRequest("Geçersiz veya süresi dolmuş doğrulama kodu");
+            }
+
+            var user = await _context.Users.FindAsync(model.UserId);
+            if (user == null)
+            {
+                return NotFound("Kullanıcı bulunamadı");
+            }
+
+            user.UisEmailVerified = true;
+            user.Uisactive = true; // Kullanıcıyı aktif hale getir
+
+            _context.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            // Kodu veritabanından sil
+            _context.UserForgotPasswords.Remove(record);
+            await _context.SaveChangesAsync();
+
+            return Ok("E-posta doğrulaması başarılı");
+        }
+
 
         #region reset password
         /// <summary>

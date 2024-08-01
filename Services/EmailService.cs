@@ -47,6 +47,7 @@ namespace StajYerApp_API.Services
             string body = $@"
 <!DOCTYPE html>
 <html>
+
 <head>
     <style>
         .container {{
@@ -58,6 +59,7 @@ namespace StajYerApp_API.Services
             border: 1px solid #ddd;
             border-radius: 5px;
         }}
+
         .header {{
             text-align: center;
             padding: 10px;
@@ -65,22 +67,31 @@ namespace StajYerApp_API.Services
             color: white;
             border-radius: 5px 5px 0 0;
         }}
+
         .content {{
             padding: 20px;
         }}
+
         .code {{
             font-size: 24px;
             font-weight: bold;
             color: #333;
         }}
+
         .footer {{
             text-align: center;
             margin-top: 20px;
             font-size: 12px;
             color: #777;
         }}
+        #footerimg{{
+            width: 85px;
+            height: auto;
+            display: flex;
+        }}
     </style>
 </head>
+
 <body>
     <div class='container'>
         <div class='header'>
@@ -95,9 +106,11 @@ namespace StajYerApp_API.Services
         </div>
         <div class='footer'>
             <p>&copy; {DateTime.UtcNow.Year} StajYer. All rights reserved.</p>
+            <img id='footerimg' src='../Public/images/stajyerlogoasıl.png' alt=''>
         </div>
     </div>
 </body>
+
 </html>";
             await SendEmailAsync(toEmail, subject, body);
         }
