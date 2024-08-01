@@ -31,11 +31,11 @@ namespace StajYerApp_API.Controllers
         /// <param name="newUser">Kaydedilecek kullanıcı</param>
         /// <returns>Oluşturulan kullanıcıyı döndürür</returns>
         [HttpPost("Register")]
-        public async Task<ActionResult<User>> Register([FromBody] NewCompanyUserModel newUser)
+        public async Task<ActionResult<CompanyUser>> Register([FromBody] NewCompanyUserModel newUser)
         {
 
-            var existingUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Uemail == newUser.Email.ToLower() || u.Uphone == newUser.Phone);
+            var existingUser = await _context.CompanyUsers
+                .FirstOrDefaultAsync(u => u.Email == newUser.Email.ToLower() || u.Phone == newUser.Phone);
 
             if (existingUser != null)
             {
@@ -67,10 +67,10 @@ namespace StajYerApp_API.Controllers
         /// <param name="loginUser">Kullanıcı adı ve şifre içeren giriş modeli</param>
         /// <returns>Kimliği doğrulanmış kullanıcıyı döndürür</returns>
         [HttpPost("Login")]
-        public async Task<ActionResult<User>> Login([FromBody] UserLoginModel loginUser)
+        public async Task<ActionResult<CompanyUser>> Login([FromBody] compUserLoginModel loginUser)
         {
             var user = await _context.CompanyUsers
-                .FirstOrDefaultAsync(u => u.Email == loginUser.Uemail && u.Password == loginUser.Upassword);
+                .FirstOrDefaultAsync(u => u.Email == loginUser.Email && u.Password == loginUser.Password);
 
             if (user == null)
             {
@@ -80,6 +80,9 @@ namespace StajYerApp_API.Controllers
             return Ok(user);
         }
         #endregion        
+
+        //şirket mailden gelen password ile giriş yaptıktan sonra direkt şifre değiştirme ekranına gönderilmeli. 
+        //şifre değiştirme endpointi yazılacak. 
 
         #region Şirket Kullanıcı ile şirket bilgilerini getirme
         [HttpGet("GetCompanyInformations/{compUserId}")]
