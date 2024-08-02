@@ -127,6 +127,7 @@ namespace StajYerApp_API.Controllers
 
                 var advertDto = new NewAdvertModel
                 {
+                    AdvertId=advert.AdvertId,
                     CompId = advert.CompId,
                     AdvTitle = advert.AdvTitle,
                     AdvAdressTitle = advert.AdvAdressTitle,

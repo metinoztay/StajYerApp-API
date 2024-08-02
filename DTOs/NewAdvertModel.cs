@@ -5,6 +5,7 @@ namespace StajYerApp_API.DTOs
     public class NewAdvertModel
     {
         public int CompId { get; set; }
+        public int AdvertId { get; set; }
 
         public string AdvTitle { get; set; } = null!;
 
