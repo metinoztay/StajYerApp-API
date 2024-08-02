@@ -36,14 +36,12 @@ namespace StajYerApp_API.Controllers
         public async Task<ActionResult<User>> Register([FromBody] NewUserModel newUser)
         {
             var existingUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Uemail == newUser.Uemail.ToLower() || u.Uphone == newUser.Uphone);
+                .FirstOrDefaultAsync(u => u.Uemail == newUser.Uemail.ToLower());
 
             if (existingUser != null)
             {
-                return BadRequest("Bu email veya telefon numarası ile daha önce kayıt oluşturulmuş");
+                return BadRequest("Bu email kullanımdadır.");
             }
-
-            
 
             var addedUser = new User
             {
@@ -51,14 +49,12 @@ namespace StajYerApp_API.Controllers
                 Usurname = newUser.Usurname.ToUpper(),
                 Uemail = newUser.Uemail.ToLower(),
                 Upassword = newUser.Upassword,
-                Uphone = newUser.Uphone,
                 Ubirthdate = newUser.Ubirthdate,
                 Ugender = newUser.Ugender,
                 Uprofilephoto = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
                 Uisactive = false, // Kullanıcı aktif değil, e-posta doğrulaması yapılacak
                 UisEmailVerified = false, // E-posta doğrulaması yapılacak
                 UisPhoneVerified = false,
-                
             };
 
             _context.Users.Add(addedUser);

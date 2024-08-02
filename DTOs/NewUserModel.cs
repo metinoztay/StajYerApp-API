@@ -12,8 +12,6 @@ namespace StajYerApp_API.DTOs
 
         public string Upassword { get; set; } = null!;
 
-        public string? Uphone { get; set; }
-
         public string Ubirthdate { get; set; } = null!;
 
         public bool Ugender { get; set; }
