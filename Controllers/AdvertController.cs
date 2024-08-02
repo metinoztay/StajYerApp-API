@@ -26,9 +26,10 @@ namespace StajYerApp_API.Controllers
         [HttpGet("ListAllActiveAdverts")]
         public async Task<ActionResult<IEnumerable<Advertisement>>> ListAllActiveAdverts()
         {
-            var adverts =  await _context.Advertisements.Where(a => a.AdvIsActive == true).ToListAsync();
-            
-            foreach (var advert in adverts) {
+            var adverts = await _context.Advertisements.Where(a => a.AdvIsActive == true).ToListAsync();
+
+            foreach (var advert in adverts)
+            {
                 var company = new Company();
                 company = await _context.Companies.FindAsync(advert.CompId);
                 company.Advertisements = null;
@@ -55,10 +56,10 @@ namespace StajYerApp_API.Controllers
                 AdvAdressTitle = newAdvert.AdvAdressTitle,
                 AdvAdress = newAdvert.AdvAdress,
                 AdvWorkType = newAdvert.AdvWorkType,
-                AdvDepartment = newAdvert.AdvDepartment,                
+                AdvDepartment = newAdvert.AdvDepartment,
                 AdvJobDesc = newAdvert.AdvJobDesc,
                 AdvQualifications = newAdvert.AdvQualifications,
-                AdvAddInformation = newAdvert.AdvAddInformation,  
+                AdvAddInformation = newAdvert.AdvAddInformation,
                 AdvExpirationDate = newAdvert.AdvExpirationDate,
                 AdvPhoto = newAdvert.AdvPhoto,
                 AdvPaymentInfo = newAdvert.AdvPaymentInfo,
@@ -79,9 +80,10 @@ namespace StajYerApp_API.Controllers
             if (advert != null)
             {
                 _context.UsersSavedAdverts.Remove(advert);
-                await _context.SaveChangesAsync();               
+                await _context.SaveChangesAsync();
             }
-            else {
+            else
+            {
                 var savedAdvert = new UsersSavedAdvert
                 {
                     UserId = saveAdvert.UserId,
@@ -90,36 +92,63 @@ namespace StajYerApp_API.Controllers
 
                 _context.UsersSavedAdverts.Add(savedAdvert);
                 await _context.SaveChangesAsync();
-            }          
+            }
             return Ok();
         }
         #endregion
 
-        
+
 
         #region Kullanıcının Kaydettiği İlanları Listeleme
         [HttpGet("ListUsersSavedAdverts/{userId}")]
-        public async Task<ActionResult> ListUsersSavedAdverts(int userId)
+        public async Task<ActionResult<IEnumerable<NewAdvertModel>>> ListUsersSavedAdverts(int userId)
         {
-            List<Advertisement> adverts = new List<Advertisement>();
-            var saves = await _context.UsersSavedAdverts.Where(a => a.UserId == userId).ToListAsync(); 
             
-            if (adverts == null)
+            var savedAdverts = await _context.UsersSavedAdverts
+                .Where(u => u.UserId == userId)
+                .Select(u => u.Advert)
+                .ToListAsync();
+
+            if (savedAdverts == null || !savedAdverts.Any())
             {
-                return NotFound();
+                return NotFound("Kullanıcının kaydettiği ilan bulunamadı.");
             }
 
-            foreach (var save in saves)
+            
+            var advertDtos = new List<NewAdvertModel>();
+
+            foreach (var advert in savedAdverts)
             {
-                var advert = await _context.Advertisements.Where(a => a.AdvertId == save.AdvertId).FirstOrDefaultAsync();
-                if (advert != null)
+
+                var company = new Company();
+                company = await _context.Companies.FindAsync(advert.CompId);
+                company.Advertisements = null;
+                advert.Comp = company;
+
+                var advertDto = new NewAdvertModel
                 {
-                    adverts.Add(advert);
-                }
+                    CompId = advert.CompId,
+                    AdvTitle = advert.AdvTitle,
+                    AdvAdressTitle = advert.AdvAdressTitle,
+                    AdvAdress = advert.AdvAdress,
+                    AdvWorkType = advert.AdvWorkType,
+                    AdvDepartment = advert.AdvDepartment,
+                    AdvJobDesc = advert.AdvJobDesc,
+                    AdvQualifications = advert.AdvQualifications,
+                    AdvAddInformation = advert.AdvAddInformation,
+                    AdvExpirationDate = advert.AdvExpirationDate,
+                    AdvPhoto = advert.AdvPhoto,
+                    AdvPaymentInfo = advert.AdvPaymentInfo,
+                    Comp = company 
+                };
+
+                advertDtos.Add(advertDto);
             }
 
-            return Ok(adverts);
+            return Ok(advertDtos);
         }
+
+
         #endregion
 
         #region İlan Idsi ile İlan Bilgilerini getirme
@@ -142,7 +171,7 @@ namespace StajYerApp_API.Controllers
         public async Task<ActionResult> ListCompanyAdverts(int companyId)
         {
             var adverts = await _context.Advertisements.Where(a => a.CompId == companyId).ToListAsync();
-            
+
             if (adverts == null)
             {
                 return NotFound();

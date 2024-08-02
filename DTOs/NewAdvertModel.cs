@@ -24,9 +24,10 @@ namespace StajYerApp_API.DTOs
 
         public DateTime AdvExpirationDate { get; set; }
 
-        public string? AdvPhoto { get; set; }        
+        public string? AdvPhoto { get; set; }
 
         public bool? AdvPaymentInfo { get; set; }
+        public virtual Company Comp { get; set; } = null!;
 
     }
 }

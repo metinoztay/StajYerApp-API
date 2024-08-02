@@ -43,7 +43,7 @@ namespace StajYerApp_API.Controllers
                 return BadRequest("Bu email veya telefon numarası ile daha önce kayıt oluşturulmuş");
             }
 
-            var verificationCode = new Random().Next(100000, 999999).ToString();
+            
 
             var addedUser = new User
             {
@@ -57,25 +57,15 @@ namespace StajYerApp_API.Controllers
                 Uprofilephoto = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
                 Uisactive = false, // Kullanıcı aktif değil, e-posta doğrulaması yapılacak
                 UisEmailVerified = false, // E-posta doğrulaması yapılacak
-                UisPhoneVerified = false
+                UisPhoneVerified = false,
+                
             };
 
             _context.Users.Add(addedUser);
             await _context.SaveChangesAsync();
+            
 
-            var userForgotPassword = new UserForgotPassword
-            {
-                UserId = addedUser.UserId,
-                VerifyCode = verificationCode,
-                ExpirationTime = DateTime.UtcNow.AddMinutes(10) // Kodun geçerlilik süresi 10 dakika
-            };
-
-            _context.UserForgotPasswords.Add(userForgotPassword);
-            await _context.SaveChangesAsync();
-
-            await _emailService.SendVerificationCodeAsync(newUser.Uemail, verificationCode);
-
-            return Ok("Kayıt işlemi başarılı. E-posta doğrulama kodu gönderildi.");
+            return Ok("Kayıt işlemi başarılı.");
         }
         #endregion
 
