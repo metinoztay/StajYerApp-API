@@ -220,10 +220,7 @@ namespace StajYerApp_API.Controllers
         [HttpPut("UpdateUser/{userId}")]
         public async Task<IActionResult> UpdateProfile(int userId, [FromBody] UpdateUserModel updateUser)
         {
-            if (userId != updateUser.UserId)
-            {
-                return BadRequest("gövdedeki user id ile eşleşmedi");
-            }
+            
 
             var user = await _context.Users.FindAsync(userId);
             if (user == null)
@@ -243,7 +240,7 @@ namespace StajYerApp_API.Controllers
             user.Ucv = updateUser.Ucv;
             user.Udesc = updateUser.Udesc;
 
-            _context.Entry(user).State = EntityState.Modified;
+            _context.Entry(user).State = EntityState.Modified; 
             await _context.SaveChangesAsync();
 
             return NoContent();
