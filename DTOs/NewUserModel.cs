@@ -8,11 +8,11 @@ namespace StajYerApp_API.DTOs
 
         public string Usurname { get; set; } = null!;
 
-        public string Uemail { get; set; } = null!;
+        public string? Uemail { get; set; }
 
         public string Upassword { get; set; } = null!;
 
-        public string Uphone { get; set; } = null!;
+        public string? Uphone { get; set; }
 
         public string Ubirthdate { get; set; } = null!;
 
