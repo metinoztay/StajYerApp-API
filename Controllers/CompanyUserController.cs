@@ -79,10 +79,32 @@ namespace StajYerApp_API.Controllers
 
             return Ok(user);
         }
-        #endregion        
+        #endregion
 
         //şirket mailden gelen password ile giriş yaptıktan sonra direkt şifre değiştirme ekranına gönderilmeli. 
         //şifre değiştirme endpointi yazılacak. 
+
+        #region yeni şifre 
+        [HttpPut("NewPassword")]
+        public async Task<IActionResult> NewPassword([FromBody] compUserNewPasswordModel changeItem)
+        {
+            var user=await _context.CompanyUsers.FindAsync(changeItem.CompUserId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+                                                            //şifre hashleme bakılabilir.
+            if (user.Password!= changeItem.OldPassword)
+            {
+                return BadRequest("Eski şifre yanlış.");
+            }
+            user.Password = changeItem.NewPassword;
+            await _context.SaveChangesAsync();
+            return Ok(user);
+            
+        }
+        #endregion
 
         #region Şirket Kullanıcı ile şirket bilgilerini getirme
         [HttpGet("GetCompanyInformations/{compUserId}")]
@@ -114,16 +136,13 @@ namespace StajYerApp_API.Controllers
                 return NotFound();
             }
 
-            var updatedUser = new CompanyUser
-            {                
-                NameSurname = updateUser.NameSurname,
-                Email = updateUser.Email.ToLower(),
-                Phone = updateUser.Phone,
-                Password = updateUser.Password
-            };
+            
+            user.NameSurname = updateUser.NameSurname;
+            user.Email = updateUser.Email.ToLower();
+            user.Phone = updateUser.Phone;
+            user.Password = updateUser.Password; //burada yine hashlenme gerekebilir.
 
-
-            _context.Entry(user).State = EntityState.Modified;
+            
             await _context.SaveChangesAsync();
 
             return NoContent();
