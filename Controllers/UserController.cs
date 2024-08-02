@@ -203,20 +203,23 @@ namespace StajYerApp_API.Controllers
         /// <param name="userId">Güncellenmek istenen kullanıcının ID'si</param>
         /// <param name="updateUser">Güncellenmiş kullanıcı bilgilerini tutar</param>
         /// <returns>Başarılı veya başarısız sonucunu döndürür</returns>
-        [HttpPut("UpdateUser/{userId}")]
-        public async Task<IActionResult> UpdateProfile(int userId, [FromBody] UpdateUserModel updateUser)
+        [HttpPut("UpdateUser")]
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserModel updateUser)
         {
-            
-
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _context.Users.FindAsync(updateUser.UserId);
             if (user == null)
             {
                 return NotFound();
             }
 
+            if (user.Uemail != updateUser.Uemail)
+            {
+                user.Uemail = updateUser.Uemail.ToLower();
+                user.UisEmailVerified = false;
+            }
+
             user.Uname = Utilities.CapitalizeFirstLetter(updateUser.Uname);
-            user.Usurname = updateUser.Usurname.ToUpper();
-            user.Uemail = updateUser.Uemail.ToLower();
+            user.Usurname = updateUser.Usurname.ToUpper();            
             user.Upassword = updateUser.Upassword;
             user.Uphone = updateUser.Uphone;
             user.Ubirthdate = updateUser.Ubirthdate;

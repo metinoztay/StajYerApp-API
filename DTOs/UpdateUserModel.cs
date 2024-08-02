@@ -3,6 +3,7 @@
     public class UpdateUserModel
     {
         public int UserId { get; set; }
+
         public string Uname { get; set; } = null!;
 
         public string Usurname { get; set; } = null!;
@@ -27,6 +28,5 @@
 
         public string Uprofilephoto { get; set; } = null!;
 
-        public bool Uisactive {get; set;}
     }
 }
