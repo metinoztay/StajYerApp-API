@@ -94,9 +94,7 @@ namespace StajYerApp_API.Controllers
             return Ok();
         }
         #endregion
-
-        
-
+           
         #region Kullanıcının Kaydettiği İlanları Listeleme
         [HttpGet("ListUsersSavedAdverts/{userId}")]
         public async Task<ActionResult> ListUsersSavedAdverts(int userId)
@@ -126,7 +124,7 @@ namespace StajYerApp_API.Controllers
         [HttpGet("GetAdvertById/{advertId}")]
         public async Task<ActionResult> GetAdvertById(int advertId)
         {
-            var advert = await _context.Advertisements.FindAsync(advertId);
+            var advert = await _context.Advertisements.FindAsync(advertId);           
 
             if (advert == null)
             {
@@ -136,6 +134,38 @@ namespace StajYerApp_API.Controllers
             return Ok(advert);
         }
         #endregion*/
+
+        #region Kullanıcı ve ilan id si ile ilan sorgulama
+        [HttpGet("GetAdvertForUser/{advertId}/{userId}")]
+        public async Task<ActionResult> GetAdvertForUser(int advertId,int userId)
+        {
+            var advert = await _context.Advertisements.FindAsync(advertId);
+            bool isApplied = await _context.Applications.AnyAsync(a => a.AdvertId == advertId && a.UserId == userId);
+            AdvertForUserModel model = new AdvertForUserModel{
+                AdvertId = advert.AdvertId,
+                AdvTitle = advert.AdvTitle,
+                AdvAdressTitle = advert.AdvAdressTitle,
+                AdvAdress = advert.AdvAdress,
+                AdvWorkType = advert.AdvWorkType,
+                AdvDepartment = advert.AdvDepartment,                
+                AdvJobDesc = advert.AdvJobDesc,
+                AdvQualifications = advert.AdvQualifications,
+                AdvAddInformation = advert.AdvAddInformation,  
+                AdvExpirationDate = advert.AdvExpirationDate,
+                AdvPhoto = advert.AdvPhoto,
+                AdvPaymentInfo = advert.AdvPaymentInfo,
+                AdvIsActive = advert.AdvIsActive,
+                isApplied = isApplied
+            };
+            
+            if (advert == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(model);
+        }
+        #endregion
 
         #region Şirket Id si ile İlanları Listeleme
         [HttpGet("ListCompanyAdverts/{companyId}")]
