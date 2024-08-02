@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StajYerApp_API.DTOs;
 using StajYerApp_API.Models;
+using StajYerApp_API.Services;
 
 namespace StajYerApp_API.Controllers
 {
@@ -11,14 +12,16 @@ namespace StajYerApp_API.Controllers
     public class ApplicationController : ControllerBase
     {
         private readonly Db6761Context _context;
+        private readonly IEmailService _emailService;
 
         /// <summary>
         /// UserController Db6761Context ile başlatır
         /// </summary>
         /// <param name="context">Uygulamanın veritabanı bağlantısı yapılıyor</param>
-        public ApplicationController(Db6761Context context)
+        public ApplicationController(Db6761Context context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
 
@@ -58,12 +61,37 @@ namespace StajYerApp_API.Controllers
         #endregion
 
         #region Kullanıcı ilana başvuru yapar
-        [HttpPost("UserApplyAdvert")]
-        public async Task<ActionResult> UserApplyAdvert([FromBody] UserApplyModel appAdvert)
+        [HttpPost("UserApplyAdvert/{UserId}")]
+        public async Task<ActionResult> UserApplyAdvert(int UserId, [FromBody] UserApplyModel appAdvert)
         {
+            var user = await _context.Users.FindAsync(UserId);
+
+            if (user == null)
+            {
+                return NotFound("Kullanıcı bulunamadı");
+            }
+
+            if (user.UisEmailVerified != true)
+            {
+                var verificationCode = new Random().Next(100000, 999999).ToString();
+                var userForgotPassword = new UserForgotPassword
+                {
+                    UserId = user.UserId,
+                    VerifyCode = verificationCode,
+                    ExpirationTime = DateTime.UtcNow.AddMinutes(10) // Kodun geçerlilik süresi 10 dakika
+                };
+
+                _context.UserForgotPasswords.Add(userForgotPassword);
+                await _context.SaveChangesAsync();
+
+                await _emailService.SendVerificationCodeAsync(user.Uemail, verificationCode);
+
+                return BadRequest("Email Onayı Gerekli. Onay kodu e-posta adresinize gönderildi.");
+            }
+
             var application = new Application
             {
-                UserId = appAdvert.UserId,
+                UserId = UserId,
                 AdvertId = appAdvert.AdvertId,
                 AppDate = DateTime.Now.ToString(),
                 AppLetter = appAdvert.AppLetter,
@@ -74,5 +102,36 @@ namespace StajYerApp_API.Controllers
             return Ok();
         }
         #endregion
+
+        [HttpPost("VerifyEmail")]
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyCodeModel model)
+        {
+            var record = await _context.UserForgotPasswords //kodları bu modelde saklıyoruz. daha sonra değiştirilebilir.
+                .FirstOrDefaultAsync(u => u.UserId == model.UserId && u.VerifyCode == model.Code && u.ExpirationTime > DateTime.UtcNow);
+
+            if (record == null)
+            {
+                return BadRequest("Geçersiz veya süresi dolmuş doğrulama kodu");
+            }
+
+            var user = await _context.Users.FindAsync(model.UserId);
+            if (user == null)
+            {
+                return NotFound("Kullanıcı bulunamadı");
+            }
+
+            user.UisEmailVerified = true;
+            user.Uisactive = true; // Kullanıcıyı aktif hale getir
+
+            _context.Entry(user).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            // Kodu veritabanından sil
+            _context.UserForgotPasswords.Remove(record);
+            await _context.SaveChangesAsync();
+
+            return Ok("E-posta doğrulaması başarılı");
+        }
+
     }
 }

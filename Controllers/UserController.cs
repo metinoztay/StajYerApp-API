@@ -203,8 +203,8 @@ namespace StajYerApp_API.Controllers
         /// <param name="userId">Güncellenmek istenen kullanıcının ID'si</param>
         /// <param name="updateUser">Güncellenmiş kullanıcı bilgilerini tutar</param>
         /// <returns>Başarılı veya başarısız sonucunu döndürür</returns>
-        [HttpPut("UpdateUser")]
-        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserModel updateUser)
+        [HttpPut("UpdateUser/{UserId}")]
+        public async Task<IActionResult> UpdateUser(int UserId, [FromBody] UpdateUserModel updateUser)
         {
             var user = await _context.Users.FindAsync(updateUser.UserId);
             if (user == null)
@@ -300,59 +300,9 @@ namespace StajYerApp_API.Controllers
         }
         #endregion
 
-        #region Kodu doğrulama endpoint
-        /// <summary>
-        /// Kodu doğrulama endpointi. Farklı işlemler için kullanılabilir veya silinebilir
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPost("VerifyCode")]
-        public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeModel model)
-        {
-            var record = await _context.UserForgotPasswords
-                .FirstOrDefaultAsync(u => u.UserId == model.UserId && u.VerifyCode == model.Code && u.ExpirationTime > DateTime.UtcNow);
+       
 
-            if (record == null)
-            {
-                return BadRequest("Invalid or expired verification code");
-            }
-
-
-            return Ok("Verification successful");
-        }
-
-        #endregion
-
-        [HttpPost("VerifyEmail")]
-        public async Task<IActionResult> VerifyEmail([FromBody] VerifyCodeModel model)
-        {
-            var record = await _context.UserForgotPasswords //kodları bu modelde saklıyoruz. daha sonra değiştirilebilir.
-                .FirstOrDefaultAsync(u => u.UserId == model.UserId && u.VerifyCode == model.Code && u.ExpirationTime > DateTime.UtcNow);
-
-            if (record == null)
-            {
-                return BadRequest("Geçersiz veya süresi dolmuş doğrulama kodu");
-            }
-
-            var user = await _context.Users.FindAsync(model.UserId);
-            if (user == null)
-            {
-                return NotFound("Kullanıcı bulunamadı");
-            }
-
-            user.UisEmailVerified = true;
-            user.Uisactive = true; // Kullanıcıyı aktif hale getir
-
-            _context.Entry(user).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            // Kodu veritabanından sil
-            _context.UserForgotPasswords.Remove(record);
-            await _context.SaveChangesAsync();
-
-            return Ok("E-posta doğrulaması başarılı");
-        }
-
+        
 
         #region reset password
         /// <summary>

@@ -5,8 +5,8 @@ using StajYerApp_API.Models;
 
 /* 
  * app.mailersend.com
- * kullanıcı cijinam968@orsbap.com 
- * şifre Mailgonder1 
+ * kullanıcı boxaco6106@luvnish.com
+ * şifre Asdasdasd1 
  */
 namespace StajYerApp_API.Services
 {
