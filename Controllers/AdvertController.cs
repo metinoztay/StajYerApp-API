@@ -71,34 +71,31 @@ namespace StajYerApp_API.Controllers
         }
         #endregion
 
-        #region Kullanıcı için ilan kaydetme
-        [HttpPost("UserSaveAdvert")]
-        public async Task<ActionResult> UserSaveAdvert([FromBody] UserSaveAdvertModel saveAdvert)
+        #region Kullanıcı için ilan kaydedip silme
+        [HttpPost("UserSaveDeleteAdvert")]
+        public async Task<ActionResult> UserSaveDeleteAdvert([FromBody] UserSaveAdvertModel saveAdvert)
         {
-            var savedAdvert = new UsersSavedAdvert
+            var advert = _context.UsersSavedAdverts.Where(u => u.UserId == saveAdvert.UserId && u.AdvertId == saveAdvert.AdvertId).FirstOrDefault();
+            if (advert != null)
             {
-                UserId = saveAdvert.UserId,
-                AdvertId = saveAdvert.AdvertId
-            };
+                _context.UsersSavedAdverts.Remove(advert);
+                await _context.SaveChangesAsync();               
+            }
+            else {
+                var savedAdvert = new UsersSavedAdvert
+                {
+                    UserId = saveAdvert.UserId,
+                    AdvertId = saveAdvert.AdvertId
+                };
 
-            _context.UsersSavedAdverts.Add(savedAdvert);
-            await _context.SaveChangesAsync();
+                _context.UsersSavedAdverts.Add(savedAdvert);
+                await _context.SaveChangesAsync();
+            }          
             return Ok();
         }
         #endregion
 
-        #region Kullanıcı kaydettiği ilanı siler
-        [HttpDelete("UserDeleteSavedAdvert")]
-        public async Task<ActionResult> UserDeleteSavedAdvert([FromBody] UserSaveAdvertModel saveAdvert)
-        {
-            var savedAdvert = await _context.UsersSavedAdverts
-                .FirstOrDefaultAsync(u => u.UserId == saveAdvert.UserId && u.AdvertId == saveAdvert.AdvertId);
-
-            _context.UsersSavedAdverts.Remove(savedAdvert);
-            await _context.SaveChangesAsync();
-            return Ok();
-        }
-        #endregion
+        
 
         #region Kullanıcının Kaydettiği İlanları Listeleme
         [HttpGet("ListUsersSavedAdverts/{userId}")]
