@@ -47,6 +47,8 @@ namespace StajYerApp_API.Controllers
         }
         #endregion
 
+        
+
         #region İlana Başvuranları Listeleme
         [HttpGet("ListAdvertsApplications/{advertId}")]
         public async Task<ActionResult> ListAdvertsApplications(int advertId)
@@ -128,7 +130,6 @@ namespace StajYerApp_API.Controllers
             }
 
             user.UisEmailVerified = true;
-            user.Uisactive = true; 
 
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();

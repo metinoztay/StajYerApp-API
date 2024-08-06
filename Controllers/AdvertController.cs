@@ -105,7 +105,15 @@ namespace StajYerApp_API.Controllers
         }
         #endregion
 
+        #region Kullanıcnın İlan Başvuru Bilgisini Alma
+        [HttpGet("GetUserIsApplied/{userId}/{advertId}")]
+        public async Task<ActionResult> GetUserIsApplied(int userId, int advertId)
+        {
+            bool isApplied = await _context.Applications.AnyAsync(a => a.UserId == userId && a.AdvertId == advertId);
 
+            return Ok(isApplied);
+        }
+        #endregion
 
         #region Kullanıcının Kaydettiği İlanları Listeleme
         [HttpGet("ListUsersSavedAdverts/{userId}")]
