@@ -30,6 +30,14 @@ namespace StajYerApp_API.Controllers
 
             foreach (var advert in adverts)
             {
+                if (advert.AdvExpirationDate < DateTime.Now)
+                {
+                    advert.AdvIsActive = false;
+                    _context.Entry(advert).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                    continue;
+                }
+
                 var company = new Company();
                 company = await _context.Companies.FindAsync(advert.CompId);
                 company.Advertisements = null;
@@ -119,6 +127,12 @@ namespace StajYerApp_API.Controllers
 
             foreach (var advert in savedAdverts)
             {
+                if (advert.AdvExpirationDate < DateTime.Now)
+                {
+                    advert.AdvIsActive = false;
+                    _context.Entry(advert).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                }
 
                 var company = new Company();
                 company = await _context.Companies.FindAsync(advert.CompId);
@@ -163,6 +177,12 @@ namespace StajYerApp_API.Controllers
                 return NotFound();
             }
 
+            if (advert.AdvExpirationDate < DateTime.Now)
+            {
+                advert.AdvIsActive = false;
+                _context.Entry(advert).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
             return Ok(advert);
         }
         #endregion*/
@@ -180,6 +200,13 @@ namespace StajYerApp_API.Controllers
 
             foreach (var advert in adverts)
             {
+                if (advert.AdvExpirationDate < DateTime.Now)
+                {
+                    advert.AdvIsActive = false;
+                    _context.Entry(advert).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                }
+
                 int count = await _context.Applications
                     .CountAsync(a => a.AdvertId == advert.AdvertId);
                 advert.AdvAppCount = count.ToString();
