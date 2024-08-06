@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using StajYerApp_API.DTOs;
 using StajYerApp_API.Models;
@@ -15,15 +17,17 @@ namespace StajYerApp_API.Controllers
     {
         private readonly Db6761Context _context;
         private readonly IEmailService _emailService;
+        private readonly IWebHostEnvironment _hostingEnvironment;
 
         /// <summary>
         /// UserController Db6761Context ile başlatır
         /// </summary>
         /// <param name="context">Uygulamanın veritabanı bağlantısı yapılıyor</param>
-        public UserController(Db6761Context context, IEmailService emailService)
+        public UserController(Db6761Context context, IEmailService emailService, IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
             _emailService = emailService;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         #region Kullanıcı Kayıt
@@ -43,6 +47,7 @@ namespace StajYerApp_API.Controllers
                 return BadRequest("Bu email kullanımdadır.");
             }
 
+            string yeni = System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "Assets", "Images", "blank_profile_photo.jpg");
             var addedUser = new User
             {
                 Uname = Utilities.CapitalizeFirstLetter(newUser.Uname),
@@ -51,9 +56,9 @@ namespace StajYerApp_API.Controllers
                 Upassword = newUser.Upassword,
                 Ubirthdate = newUser.Ubirthdate,
                 Ugender = newUser.Ugender,
-                Uprofilephoto = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
+                Uprofilephoto = System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "Assets", "Images", "blank_profile_photo.jpg"),
                 Uisactive = true,
-                UisEmailVerified = false, // E-posta doğrulaması yapılacak
+                UisEmailVerified = true, // E-posta doğrulaması düzenlenecek!!
                 UisPhoneVerified = false,
             };
 
@@ -311,15 +316,17 @@ namespace StajYerApp_API.Controllers
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
         {
+
+            int id = await _context.Users.Where(u => u.Uemail == model.Email).Select(u => u.UserId).FirstOrDefaultAsync();
             var record = await _context.UserForgotPasswords
-                .FirstOrDefaultAsync(u => u.UserId == model.UserId && u.VerifyCode == model.Code && u.ExpirationTime > DateTime.UtcNow);
+                .FirstOrDefaultAsync(u => u.UserId == id && u.VerifyCode == model.Code && u.ExpirationTime > DateTime.UtcNow);
 
             if (record == null)
             {
                 return BadRequest("Invalid or expired verification code");
             }
 
-            var user = await _context.Users.FindAsync(model.UserId);
+            var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound("User not found");
