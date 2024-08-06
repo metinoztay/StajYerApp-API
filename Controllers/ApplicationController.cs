@@ -61,10 +61,10 @@ namespace StajYerApp_API.Controllers
         #endregion
 
         #region Kullanıcı ilana başvuru yapar
-        [HttpPost("UserApplyAdvert/{UserId}")]
-        public async Task<ActionResult> UserApplyAdvert(int UserId, [FromBody] UserApplyModel appAdvert)
+        [HttpPost("UserApplyAdvert")]
+        public async Task<ActionResult> UserApplyAdvert([FromBody] UserApplyModel appAdvert)
         {
-            var user = await _context.Users.FindAsync(UserId);
+            var user = await _context.Users.FindAsync(appAdvert.UserId);
 
             if (user == null)
             {
@@ -91,7 +91,7 @@ namespace StajYerApp_API.Controllers
 
             var application = new Application
             {
-                UserId = UserId,
+                UserId = appAdvert.UserId,
                 AdvertId = appAdvert.AdvertId,
                 AppDate = DateTime.Now.ToString(),
                 AppLetter = appAdvert.AppLetter,
