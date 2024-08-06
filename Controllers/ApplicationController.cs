@@ -31,12 +31,19 @@ namespace StajYerApp_API.Controllers
         {
             var apps = await _context.Applications.Where(a => a.UserId == userId).ToListAsync();
 
+            List<Advertisement> advertList = new List<Advertisement>();
+            foreach (var app in apps) {
+                var advert = await _context.Advertisements.FindAsync(app.AdvertId);
+                if (advert != null)
+                    advertList.Add(advert);
+            }
+
             if (apps == null)
             {
                 return NotFound();
             }
 
-            return Ok(apps);
+            return Ok(advertList);
         }
         #endregion
 
