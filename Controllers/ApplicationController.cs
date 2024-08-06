@@ -47,6 +47,8 @@ namespace StajYerApp_API.Controllers
         }
         #endregion
 
+        
+
         #region İlana Başvuranları Listeleme
         [HttpGet("ListAdvertsApplications/{advertId}")]
         public async Task<ActionResult> ListAdvertsApplications(int advertId)
