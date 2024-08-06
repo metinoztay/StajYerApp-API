@@ -117,6 +117,8 @@ namespace StajYerApp_API.Controllers
 		}
 		#endregion
 
+
+
 		#region Şirket Kullanıcı ile şirket bilgilerini getirme
 		[HttpGet("GetCompanyInformations/{compUserId}")]
 		public async Task<ActionResult> GetCompanyInformations(int compUserId)
@@ -132,6 +134,32 @@ namespace StajYerApp_API.Controllers
 		}
 		#endregion
 
+
+		#region Şifre Değiştirme
+		/// <summary>
+		/// Kullanıcı şifre değiştirme
+		/// </summary>
+		/// <param name="passModel">Eski ve yeni şifreyi içeren model</param>
+		/// <returns>başarılı veya başarısız sonucunu döndürür</returns>
+		[HttpPut("ChangePassword")]
+		public async Task<IActionResult> ChangePassword([FromBody] compUserChangePassworModel passModel)
+		{
+			var user = await _context.CompanyUsers
+				.FirstOrDefaultAsync(u => u.CompUserId == passModel.UserId && u.Password == passModel.oldPassword);
+
+			if (user == null)
+			{
+				return Unauthorized();
+			}
+
+
+			user.Password = passModel.newPassword;
+
+			_context.Entry(user).State = EntityState.Modified;
+			await _context.SaveChangesAsync();
+			return NoContent();
+		}
+		#endregion
 		#region Şirket Kullanıcısı Bilgilerini Güncelleme
 		/// <summary>
 		/// Kullanıcı profili güncelleme
