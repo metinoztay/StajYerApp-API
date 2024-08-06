@@ -128,7 +128,6 @@ namespace StajYerApp_API.Controllers
             }
 
             user.UisEmailVerified = true;
-            user.Uisactive = true; 
 
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
