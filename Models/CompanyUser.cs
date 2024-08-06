@@ -23,9 +23,7 @@ public partial class CompanyUser
 
     public bool IsVerified { get; set; }
 
+    public bool HasSetPassword { get; set; }
+
     public virtual ICollection<Company> Companies { get; set; } = new List<Company>();
-
-    public virtual City TaxCity { get; set; } = null!;
-
-    public virtual TaxOffice TaxOffice { get; set; } = null!;
 }

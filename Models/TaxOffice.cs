@@ -16,6 +16,4 @@ public partial class TaxOffice
     public string Office { get; set; } = null!;
 
     public virtual City CityNavigation { get; set; } = null!;
-
-    public virtual ICollection<CompanyUser> CompanyUsers { get; set; } = new List<CompanyUser>();
 }

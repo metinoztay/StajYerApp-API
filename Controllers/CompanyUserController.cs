@@ -131,8 +131,8 @@ namespace StajYerApp_API.Controllers
         /// </summary>
         /// <param name="updateUser">Güncellenmiş kullanıcı bilgilerini tutar</param>
         /// <returns>başarılı veya başarısız sonucunu döndürür</returns>
-        [HttpPut("UpdateCompanyUser/{CompUserId}")]
-        public async Task<IActionResult> UpdateCompanyUser(int CompUserId, [FromBody] UpdateCompanyUserModel updateUser)
+        [HttpPut("UpdateCompanyUser")]
+        public async Task<IActionResult> UpdateCompanyUser([FromBody] UpdateCompanyUserModel updateUser)
         {
             var user = await _context.CompanyUsers.FindAsync(updateUser.CompUserId);
             if (user == null)

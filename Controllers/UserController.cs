@@ -203,8 +203,8 @@ namespace StajYerApp_API.Controllers
         /// <param name="userId">Güncellenmek istenen kullanıcının ID'si</param>
         /// <param name="updateUser">Güncellenmiş kullanıcı bilgilerini tutar</param>
         /// <returns>Başarılı veya başarısız sonucunu döndürür</returns>
-        [HttpPut("UpdateUser/{UserId}")]
-        public async Task<IActionResult> UpdateUser(int UserId, [FromBody] UpdateUserModel updateUser)
+        [HttpPut("UpdateUser")]
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserModel updateUser)
         {
             var user = await _context.Users.FindAsync(updateUser.UserId);
             if (user == null)
