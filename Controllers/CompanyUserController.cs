@@ -7,148 +7,155 @@ using StajYerApp_API.Services;
 
 namespace StajYerApp_API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CompanyUserController : ControllerBase
-    {
-        private readonly Db6761Context _context;
-        private readonly IEmailService _emailService;
+	[Route("api/[controller]")]
+	[ApiController]
+	public class CompanyUserController : ControllerBase
+	{
+		private readonly Db6761Context _context;
+		private readonly IEmailService _emailService;
 
-        /// <summary>
-        /// UserController Db6761Context ile başlatır
-        /// </summary>
-        /// <param name="context">Uygulamanın veritabanı bağlantısı yapılıyor</param>
-        public CompanyUserController(Db6761Context context, IEmailService emailService)
-        {
-            _context = context;
-            _emailService = emailService;
-        }
+		/// <summary>
+		/// UserController Db6761Context ile başlatır
+		/// </summary>
+		/// <param name="context">Uygulamanın veritabanı bağlantısı yapılıyor</param>
+		public CompanyUserController(Db6761Context context, IEmailService emailService)
+		{
+			_context = context;
+			_emailService = emailService;
+		}
 
-        #region Şirket Kullanıcısı Kayıt
-        /// <summary>
-        /// Kullanıcı kaydeder
-        /// </summary>
-        /// <param name="newUser">Kaydedilecek kullanıcı</param>
-        /// <returns>Oluşturulan kullanıcıyı döndürür</returns>
-        [HttpPost("Register")]
-        public async Task<ActionResult<CompanyUser>> Register([FromBody] NewCompanyUserModel newUser)
-        {
+		#region Şirket Kullanıcısı Kayıt
+		/// <summary>
+		/// Kullanıcı kaydeder
+		/// </summary>
+		/// <param name="newUser">Kaydedilecek kullanıcı</param>
+		/// <returns>Oluşturulan kullanıcıyı döndürür</returns>
+		[HttpPost("Register")]
+		public async Task<ActionResult<CompanyUser>> Register([FromBody] NewCompanyUserModel newUser)
+		{
 
-            var existingUser = await _context.CompanyUsers
-                .FirstOrDefaultAsync(u => u.Email == newUser.Email.ToLower() || u.Phone == newUser.Phone);
+			var existingUser = await _context.CompanyUsers
+				.FirstOrDefaultAsync(u => u.Email == newUser.Email.ToLower() || u.Phone == newUser.Phone);
 
-            if (existingUser != null)
-            {
-                return BadRequest("Bu email veya telefon numarası ile daha önce kayıt oluşturulmuş.");
-            }
+			if (existingUser != null)
+			{
+				return BadRequest("Bu email veya telefon numarası ile daha önce kayıt oluşturulmuş.");
+			}
 
-            var addedUser = new CompanyUser
-            {
-                NameSurname = newUser.NameSurname,
-                Email = newUser.Email.ToLower(),
-                Phone = newUser.Phone,
-                Password = Utilities.GenerateRandomPassword(8),
-                TaxNumber = newUser.TaxNumber,
-                TaxCityId = newUser.TaxCityId,
-                TaxOfficeId = newUser.TaxOfficeId,
-                IsVerified = false
-            };
+			var addedUser = new CompanyUser
+			{
+				NameSurname = newUser.NameSurname,
+				Email = newUser.Email.ToLower(),
+				Phone = newUser.Phone,
+				Password = Utilities.GenerateRandomPassword(8),
+				TaxNumber = newUser.TaxNumber,
+				TaxCityId = newUser.TaxCityId,
+				TaxOfficeId = newUser.TaxOfficeId,
+				IsVerified = false,
+				HasSetPassword = false
+			};
 
-            _context.CompanyUsers.Add(addedUser);
-            await _context.SaveChangesAsync();
-            return Ok(addedUser);
-        }
-        #endregion
+			_context.CompanyUsers.Add(addedUser);
+			await _context.SaveChangesAsync();
+			return Ok(addedUser);
+		}
+		#endregion
 
-        #region Şirket Kullanıcısı Giriş
-        /// <summary>
-        /// Kullanıcı girişi
-        /// </summary>
-        /// <param name="loginUser">Kullanıcı adı ve şifre içeren giriş modeli</param>
-        /// <returns>Kimliği doğrulanmış kullanıcıyı döndürür</returns>
-        [HttpPost("Login")]
-        public async Task<ActionResult<CompanyUser>> Login([FromBody] compUserLoginModel loginUser)
-        {
-            var user = await _context.CompanyUsers
-                .FirstOrDefaultAsync(u => u.Email == loginUser.Email && u.Password == loginUser.Password);
+		#region Şirket Kullanıcısı Giriş
+		/// <summary>
+		/// Kullanıcı girişi
+		/// </summary>
+		/// <param name="loginUser">Kullanıcı adı ve şifre içeren giriş modeli</param>
+		/// <returns>Kimliği doğrulanmış kullanıcıyı döndürür</returns>
+		[HttpPost("Login")]
+		public async Task<ActionResult<CompanyUser>> Login([FromBody] compUserLoginModel loginUser)
+		{
+			var user = await _context.CompanyUsers
+				.FirstOrDefaultAsync(u => u.Email == loginUser.Email && u.Password == loginUser.Password);
 
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+			if (user == null)
+			{
+				return Unauthorized();
+			}
 
-            return Ok(user);
-        }
-        #endregion
+		
 
-        //şirket mailden gelen password ile giriş yaptıktan sonra direkt şifre değiştirme ekranına gönderilmeli. 
-        //şifre değiştirme endpointi yazılacak. 
+			if (!user.HasSetPassword)
+			{
+				return Ok(new { Status = "SetNewPassword", User = user });
+			}
 
-        #region yeni şifre 
-        [HttpPut("NewPassword")]
-        public async Task<IActionResult> NewPassword([FromBody] compUserNewPasswordModel changeItem)
-        {
-            var user=await _context.CompanyUsers.FindAsync(changeItem.CompUserId);
+			return Ok(user);
+		}
+		#endregion
 
-            if (user == null)
-            {
-                return NotFound();
-            }
-                                                            //şifre hashleme bakılabilir.
-            if (user.Password!= changeItem.OldPassword)
-            {
-                return BadRequest("Eski şifre yanlış.");
-            }
-            user.Password = changeItem.NewPassword;
-            await _context.SaveChangesAsync();
-            return Ok(user);
-            
-        }
-        #endregion
+		#region Yeni Şifre Belirleme
+		[HttpPut("NewPassword")]
+		public async Task<IActionResult> NewPassword([FromBody] compUserNewPasswordModel changeItem)
+		{
+			var user = await _context.CompanyUsers.FindAsync(changeItem.CompUserId);
 
-        #region Şirket Kullanıcı ile şirket bilgilerini getirme
-        [HttpGet("GetCompanyInformations/{compUserId}")]
-        public async Task<ActionResult> GetCompanyInformations(int compUserId)
-        {
-            var user = await _context.Companies.Where(c => c.CompUserId == compUserId).FirstOrDefaultAsync();
+			if (user == null)
+			{
+				return NotFound();
+			}
 
-            if (user == null)
-            {
-                return NotFound();
-            }
+			if (user.Password != changeItem.OldPassword)
+			{
+				return BadRequest("Eski şifre yanlış.");
+			}
 
-            return Ok(user);
-        }
-        #endregion
+			if (user.HasSetPassword)
+			{
+				return BadRequest("Şifre zaten belirlenmiş.");
+			}
 
-        #region Şirket Kullanıcısı Bilgilerini Güncelleme
-        /// <summary>
-        /// Kullanıcı profili güncelleme
-        /// </summary>
-        /// <param name="updateUser">Güncellenmiş kullanıcı bilgilerini tutar</param>
-        /// <returns>başarılı veya başarısız sonucunu döndürür</returns>
-        [HttpPut("UpdateCompanyUser/{CompUserId}")]
-        public async Task<IActionResult> UpdateCompanyUser(int CompUserId, [FromBody] UpdateCompanyUserModel updateUser)
-        {
-            var user = await _context.CompanyUsers.FindAsync(updateUser.CompUserId);
-            if (user == null)
-            {
-                return NotFound();
-            }
+			user.Password = changeItem.NewPassword;
+			user.HasSetPassword = true;
+			await _context.SaveChangesAsync();
+			return Ok(user);
+		}
+		#endregion
 
-            
-            user.NameSurname = updateUser.NameSurname;
-            user.Email = updateUser.Email.ToLower();
-            user.Phone = updateUser.Phone;
-            user.Password = updateUser.Password; //burada yine hashlenme gerekebilir.
+		#region Şirket Kullanıcı ile şirket bilgilerini getirme
+		[HttpGet("GetCompanyInformations/{compUserId}")]
+		public async Task<ActionResult> GetCompanyInformations(int compUserId)
+		{
+			var user = await _context.Companies.Where(c => c.CompUserId == compUserId).FirstOrDefaultAsync();
 
-            
-            await _context.SaveChangesAsync();
+			if (user == null)
+			{
+				return NotFound();
+			}
 
-            return NoContent();
-        }
-        #endregion
+			return Ok(user);
+		}
+		#endregion
 
+		#region Şirket Kullanıcısı Bilgilerini Güncelleme
+		/// <summary>
+		/// Kullanıcı profili güncelleme
+		/// </summary>
+		/// <param name="updateUser">Güncellenmiş kullanıcı bilgilerini tutar</param>
+		/// <returns>başarılı veya başarısız sonucunu döndürür</returns>
+		[HttpPut("UpdateCompanyUser")]
+		public async Task<IActionResult> UpdateCompanyUser([FromBody] UpdateCompanyUserModel updateUser)
+		{
+			var user = await _context.CompanyUsers.FindAsync(updateUser.CompUserId);
+			if (user == null)
+			{
+				return NotFound();
+			}
 
-    }
+			user.NameSurname = updateUser.NameSurname;
+			user.Email = updateUser.Email.ToLower();
+			user.Phone = updateUser.Phone;
+			user.Password = updateUser.Password; // burada yine hashlenme gerekebilir.
+
+			await _context.SaveChangesAsync();
+
+			return NoContent();
+		}
+		#endregion
+	}
 }
