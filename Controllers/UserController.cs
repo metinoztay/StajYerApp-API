@@ -273,9 +273,9 @@ namespace StajYerApp_API.Controllers
         /// <param name="email">hesaba aşt email</param>
         /// <returns></returns>
         [HttpPost("ForgotPassword")]
-        public async Task<IActionResult> ForgotPassword([FromBody] string email)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel email)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Uemail == email);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Uemail == email.Email);
 
             if (user == null)
             {
@@ -298,9 +298,7 @@ namespace StajYerApp_API.Controllers
 
             return Ok("Verification code sent to your email");
         }
-        #endregion
-
-       
+        #endregion       
 
         
 
