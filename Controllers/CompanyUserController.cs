@@ -90,6 +90,14 @@ namespace StajYerApp_API.Controllers
 		#endregion
 
 		#region Yeni Şifre Belirleme
+		/// <summary>
+		/// Kullanıcının yeni şifre belirlemesini sağlar
+		/// </summary>
+		/// <param name="changeItem">Şifre değiştirme bilgilerini içeren model</param>
+		/// <returns>Kullanıcı bilgilerini döndürür</returns>
+		/// <response code="200">Kullanıcının yeni şifresi başarıyla belirlenmiştir</response>
+		/// <response code="400">Eski şifre yanlış veya şifre zaten belirlenmiş</response>
+		/// <response code="404">Kullanıcı bulunamadı</response>
 		[HttpPut("NewPassword")]
 		public async Task<IActionResult> NewPassword([FromBody] compUserNewPasswordModel changeItem)
 		{
@@ -120,6 +128,13 @@ namespace StajYerApp_API.Controllers
 
 
 		#region Şirket Kullanıcı ile şirket bilgilerini getirme
+		/// <summary>
+		/// Şirket kullanıcı kimliği ile şirket bilgilerini getirir.
+		/// </summary>
+		/// <param name="compUserId">Şirket kullanıcısının kimliği</param>
+		/// <returns>Şirket bilgilerini içeren bir nesne döner</returns>
+		/// <response code="200">Şirket bilgileri başarıyla getirildi</response>
+		/// <response code="404">Şirket kullanıcısı bulunamadı</response>
 		[HttpGet("GetCompanyInformations/{compUserId}")]
 		public async Task<ActionResult> GetCompanyInformations(int compUserId)
 		{
