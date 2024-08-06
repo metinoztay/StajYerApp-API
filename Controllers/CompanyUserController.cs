@@ -76,6 +76,10 @@ namespace StajYerApp_API.Controllers
             {
                 return Unauthorized();
             }
+            if (user.IsVerified==false)
+            {
+
+            }
 
             return Ok(user);
         }

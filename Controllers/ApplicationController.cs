@@ -128,12 +128,12 @@ namespace StajYerApp_API.Controllers
             }
 
             user.UisEmailVerified = true;
-            user.Uisactive = true; // Kullanıcıyı aktif hale getir
+            user.Uisactive = true; 
 
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            // Kodu veritabanından sil
+            // Kodu veritabanından siliyorum
             _context.UserForgotPasswords.Remove(record);
             await _context.SaveChangesAsync();
 
