@@ -101,7 +101,7 @@ namespace StajYerApp_API.Controllers
 
 			if (!user.UisEmailVerified)
 			{
-				return BadRequest("Email onayı gerekli. Lütfen email doğrulama kodunu gönderin.");
+				return BadRequest(new { message = "Email onayı gerekli. Lütfen email doğrulama kodunu gönderin.", isEmailVerified = user.UisEmailVerified });
 			}
 
 			var application = new Application
@@ -114,9 +114,10 @@ namespace StajYerApp_API.Controllers
 
 			_context.Applications.Add(application);
 			await _context.SaveChangesAsync();
-			return Ok();
+			return Ok(new { message = "Başvuru başarıyla yapıldı", isEmailVerified = user.UisEmailVerified });
 		}
 		#endregion
+
 
 		#region Email Doğrulama Kodu Gönder
 		/// <summary>
@@ -127,9 +128,9 @@ namespace StajYerApp_API.Controllers
 		/// <response code="200">Doğrulama kodu başarıyla gönderildi</response>
 		/// <response code="404">Kullanıcı bulunamadı</response>
 		[HttpPost("SendVerificationCode")]
-		public async Task<ActionResult> SendVerificationCode([FromBody] UserSendVerificationCodeModel userId)
+		public async Task<ActionResult> SendVerificationCode([FromBody] UserSendVerificationCodeModel model)
 		{
-			var user = await _context.Users.FindAsync(userId);
+			var user = await _context.Users.FindAsync(model.UserId);
 
 			if (user == null)
 			{
@@ -141,7 +142,7 @@ namespace StajYerApp_API.Controllers
 			{
 				UserId = user.UserId,
 				VerifyCode = verificationCode,
-				ExpirationTime = DateTime.UtcNow.AddMinutes(5) 
+				ExpirationTime = DateTime.UtcNow.AddMinutes(5)
 			};
 
 			_context.UserForgotPasswords.Add(userForgotPassword);
@@ -151,6 +152,7 @@ namespace StajYerApp_API.Controllers
 
 			return Ok("Doğrulama kodu e-posta adresinize gönderildi.");
 		}
+
 		#endregion
 
 		#region E-posta Doğrulama
