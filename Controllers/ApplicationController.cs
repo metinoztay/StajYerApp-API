@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using StajYerApp_API.DTOs;
 using StajYerApp_API.Models;
 using StajYerApp_API.Services;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace StajYerApp_API.Controllers
 {
@@ -38,18 +41,14 @@ namespace StajYerApp_API.Controllers
 		{
 			var apps = await _context.Applications.Where(a => a.UserId == userId).ToListAsync();
 
-			List<Advertisement> advertList = new List<Advertisement>();
-			foreach (var app in apps)
-			{
-				var advert = await _context.Advertisements.FindAsync(app.AdvertId);
-				if (advert != null)
-					advertList.Add(advert);
-			}
-
 			if (apps == null)
 			{
 				return NotFound();
 			}
+
+			var advertList = await _context.Advertisements
+				.Where(a => apps.Select(app => app.AdvertId).Contains(a.AdvertId))
+				.ToListAsync();
 
 			return Ok(advertList);
 		}
@@ -66,19 +65,17 @@ namespace StajYerApp_API.Controllers
 		[HttpGet("ListAdvertsApplications/{advertId}")]
 		public async Task<ActionResult> ListAdvertsApplications(int advertId)
 		{
-			List<User> appliedUsers = new List<User>();
 			var apps = await _context.Applications.Where(a => a.AdvertId == advertId).ToListAsync();
+
 			if (apps == null)
 			{
 				return NotFound();
 			}
 
-			foreach (var app in apps)
-			{
-				var user = await _context.Users.FindAsync(app.UserId);
-				if (user != null && user.Uisactive == true)
-					appliedUsers.Add(user);
-			}
+			var appliedUsers = await _context.Users
+				.Where(u => apps.Select(app => app.UserId).Contains(u.UserId) && u.Uisactive)
+				.ToListAsync();
+
 			return Ok(appliedUsers);
 		}
 		#endregion
@@ -102,22 +99,9 @@ namespace StajYerApp_API.Controllers
 				return NotFound("Kullanıcı bulunamadı");
 			}
 
-			if (user.UisEmailVerified != true)
+			if (!user.UisEmailVerified)
 			{
-				var verificationCode = new Random().Next(100000, 999999).ToString();
-				var userForgotPassword = new UserForgotPassword
-				{
-					UserId = user.UserId,
-					VerifyCode = verificationCode,
-					ExpirationTime = DateTime.UtcNow.AddMinutes(10) // Kodun geçerlilik süresi 10 dakika
-				};
-
-				_context.UserForgotPasswords.Add(userForgotPassword);
-				await _context.SaveChangesAsync();
-
-				await _emailService.SendVerificationCodeAsync(user.Uemail, verificationCode);
-
-				return BadRequest("Email Onayı Gerekli. Onay kodu e-posta adresinize gönderildi.");
+				return BadRequest("Email onayı gerekli. Lütfen email doğrulama kodunu gönderin.");
 			}
 
 			var application = new Application
@@ -131,6 +115,41 @@ namespace StajYerApp_API.Controllers
 			_context.Applications.Add(application);
 			await _context.SaveChangesAsync();
 			return Ok();
+		}
+		#endregion
+
+		#region Email Doğrulama Kodu Gönder
+		/// <summary>
+		/// Kullanıcının email adresine doğrulama kodu gönderir.
+		/// </summary>
+		/// <param name="userId">Kullanıcı kimliği</param>
+		/// <returns>Doğrulama kodu gönderme işleminin sonucunu döner</returns>
+		/// <response code="200">Doğrulama kodu başarıyla gönderildi</response>
+		/// <response code="404">Kullanıcı bulunamadı</response>
+		[HttpPost("SendVerificationCode")]
+		public async Task<ActionResult> SendVerificationCode([FromBody] UserSendVerificationCodeModel userId)
+		{
+			var user = await _context.Users.FindAsync(userId);
+
+			if (user == null)
+			{
+				return NotFound("Kullanıcı bulunamadı");
+			}
+
+			var verificationCode = new Random().Next(100000, 999999).ToString();
+			var userForgotPassword = new UserForgotPassword
+			{
+				UserId = user.UserId,
+				VerifyCode = verificationCode,
+				ExpirationTime = DateTime.UtcNow.AddMinutes(5) 
+			};
+
+			_context.UserForgotPasswords.Add(userForgotPassword);
+			await _context.SaveChangesAsync();
+
+			await _emailService.SendVerificationCodeAsync(user.Uemail, verificationCode);
+
+			return Ok("Doğrulama kodu e-posta adresinize gönderildi.");
 		}
 		#endregion
 
