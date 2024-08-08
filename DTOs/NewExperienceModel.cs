@@ -4,6 +4,7 @@ namespace StajYerApp_API.DTOs
 {
     public class NewExperienceModel
     {
+        public int expId { get; set; }
         public int UserId { get; set; }
 
         public string ExpPosition { get; set; } = null!;

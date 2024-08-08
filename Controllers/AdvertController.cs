@@ -121,7 +121,7 @@ namespace StajYerApp_API.Controllers
 
         #region Kullanıcının Kaydettiği İlanları Listeleme
         [HttpGet("ListUsersSavedAdverts/{userId}")]
-        public async Task<ActionResult<IEnumerable<NewAdvertModel>>> ListUsersSavedAdverts(int userId)
+        public async Task<ActionResult> ListUsersSavedAdverts(int userId)
         {
             
             var savedAdverts = await _context.UsersSavedAdverts
@@ -135,7 +135,7 @@ namespace StajYerApp_API.Controllers
             }
 
             
-            var advertDtos = new List<NewAdvertModel>();
+            var advertDtos = new List<Advertisement>();
 
             foreach (var advert in savedAdverts)
             {
@@ -151,13 +151,14 @@ namespace StajYerApp_API.Controllers
                 company.Advertisements = null;
                 advert.Comp = company;
 
-                var advertDto = new NewAdvertModel
+                var advertDto = new Advertisement
                 {
                     AdvertId=advert.AdvertId,
                     CompId = advert.CompId,
                     AdvTitle = advert.AdvTitle,
                     AdvAdressTitle = advert.AdvAdressTitle,
                     AdvAdress = advert.AdvAdress,
+                    AdvIsActive = advert.AdvIsActive,
                     AdvWorkType = advert.AdvWorkType,
                     AdvDepartment = advert.AdvDepartment,
                     AdvJobDesc = advert.AdvJobDesc,
