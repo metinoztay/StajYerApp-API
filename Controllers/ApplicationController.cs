@@ -50,6 +50,10 @@ namespace StajYerApp_API.Controllers
 				.Where(a => apps.Select(app => app.AdvertId).Contains(a.AdvertId))
 				.ToListAsync();
 
+			foreach (var adv in advertList)
+			{
+				adv.Comp = await _context.Companies.FindAsync(adv.CompId);
+			}
 			return Ok(advertList);
 		}
 		#endregion
