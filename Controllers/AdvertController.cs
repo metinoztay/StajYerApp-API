@@ -92,14 +92,18 @@ namespace StajYerApp_API.Controllers
             }
             else
             {
-                var savedAdvert = new UsersSavedAdvert
+                var adv = await _context.Advertisements.FindAsync(saveAdvert.AdvertId);
+                if (adv != null && adv.AdvIsActive)
                 {
-                    UserId = saveAdvert.UserId,
-                    AdvertId = saveAdvert.AdvertId
-                };
+                    var savedAdvert = new UsersSavedAdvert
+                    {
+                        UserId = saveAdvert.UserId,
+                        AdvertId = saveAdvert.AdvertId
+                    };
 
-                _context.UsersSavedAdverts.Add(savedAdvert);
-                await _context.SaveChangesAsync();
+                    _context.UsersSavedAdverts.Add(savedAdvert);
+                    await _context.SaveChangesAsync();
+                }                
             }
             return Ok();
         }
