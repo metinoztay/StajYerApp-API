@@ -13,7 +13,7 @@ public partial class Experience
 
     public string ExpCompanyName { get; set; } = null!;
 
-    public string ExpCity { get; set; } = null!;
+    public int ExpCityId { get; set; }
 
     public string ExpStartDate { get; set; } = null!;
 
@@ -22,6 +22,8 @@ public partial class Experience
     public string ExpWorkType { get; set; } = null!;
 
     public string? ExpDesc { get; set; }
+
+    public virtual City ExpCity { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
 }

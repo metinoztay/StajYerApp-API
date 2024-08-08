@@ -10,7 +10,7 @@ namespace StajYerApp_API.DTOs
 
         public string ExpCompanyName { get; set; } = null!;
 
-        public string ExpCity { get; set; } = null!;
+        public int ExpCityId { get; set; }
 
         public string ExpStartDate { get; set; } = null!;
 

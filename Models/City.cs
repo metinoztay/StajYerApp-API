@@ -11,5 +11,7 @@ public partial class City
 
     public virtual ICollection<District> Districts { get; set; } = new List<District>();
 
+    public virtual ICollection<Experience> Experiences { get; set; } = new List<Experience>();
+
     public virtual ICollection<TaxOffice> TaxOffices { get; set; } = new List<TaxOffice>();
 }

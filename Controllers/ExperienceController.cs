@@ -64,7 +64,7 @@ namespace StajYerApp_API.Controllers
                 UserId = newExperience.UserId,
                 ExpPosition = newExperience.ExpPosition,
                 ExpCompanyName = newExperience.ExpCompanyName,
-                ExpCity = newExperience.ExpCity,
+                ExpCityId = newExperience.ExpCityId,
                 ExpStartDate = newExperience.ExpStartDate,
                 ExpFinishDate = newExperience.ExpFinishDate,
                 ExpWorkType = newExperience.ExpWorkType,

@@ -47,7 +47,7 @@ namespace StajYerApp_API.Controllers
                 return BadRequest("Bu email kullanımdadır.");
             }
 
-            string yeni = System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "Assets", "Images", "blank_profile_photo.jpg");
+            //string yeni = System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "Assets", "Images", "blank_profile_photo.jpg");
             var addedUser = new User
             {
                 Uname = Utilities.CapitalizeFirstLetter(newUser.Uname),
@@ -56,7 +56,7 @@ namespace StajYerApp_API.Controllers
                 Upassword = newUser.Upassword,
                 Ubirthdate = newUser.Ubirthdate,
                 Ugender = newUser.Ugender,
-                Uprofilephoto = System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "Assets", "Images", "blank_profile_photo.jpg"),
+                Uprofilephoto = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
                 Uisactive = true,
                 UisEmailVerified = true, // E-posta doğrulaması düzenlenecek!!
                 UisPhoneVerified = false,
