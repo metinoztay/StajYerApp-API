@@ -304,8 +304,7 @@ namespace StajYerApp_API.Controllers
             return Ok("Verification code sent to your email");
         }
         #endregion       
-
-        
+               
 
         #region reset password
         /// <summary>
@@ -338,10 +337,35 @@ namespace StajYerApp_API.Controllers
 
             return Ok("Password reset successful");
         }
-        #endregion
+		#endregion
+
+		#region silinecek daha sonra
+		/// <summary>
+		/// Kullanıcı email deactive etme
+		/// </summary>
+		
+		/// <returns>Başarılı veya başarısız sonucunu döndürür</returns>
+		[HttpPut("deactiveEmail")]
+		public async Task<IActionResult> deactiveEmail([FromBody] silinecekdahasonra deactive)
+		{
+			var user = await _context.Users.FindAsync(deactive.UserId);
+			if (user == null)
+			{
+				return NotFound();
+			}
+
+			user.UisEmailVerified = deactive.UisEmailVerified;
+
+			_context.Entry(user).State = EntityState.Modified;
+			await _context.SaveChangesAsync();
+
+			return NoContent();
+		}
+		#endregion
 
 
 
-    }
+
+	}
 }
 
