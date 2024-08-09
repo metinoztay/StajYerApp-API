@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+ï»¿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.OpenApi.Models;
 using StajYerApp_API.Models;
@@ -19,7 +19,7 @@ builder.Services.AddCors(options =>
 		builder.AllowAnyHeader()
 		.AllowAnyMethod()
 		.SetIsOriginAllowed((host) => true)
-		.AllowCredentials();// SignalR ile credentialed CORS izinleri için gerekli
+		.AllowCredentials();// SignalR ile credentialed CORS izinleri iÃ§in gerekli
 	});
 });
 
@@ -37,7 +37,7 @@ builder.Services.AddSwaggerGen(options =>
 {
 	options.SwaggerDoc("v1", new OpenApiInfo { Title = "StajYerApp API", Version = "v1" });
 
-	// XML yorumlarýný ekle
+	// XML yorumlarÃ½nÃ½ ekle
 	var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 	var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 	options.IncludeXmlComments(xmlPath);
@@ -57,12 +57,12 @@ app.UseSwaggerUI(c =>
 
 app.UseHttpsRedirection();
 
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
-    RequestPath = "/uploads"
-});
+//app.UseStaticFiles(new StaticFileOptions
+//{
+//	FileProvider = new PhysicalFileProvider(
+//		Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+//	RequestPath = "/uploads"
+//});
 
 app.UseAuthorization();
 
