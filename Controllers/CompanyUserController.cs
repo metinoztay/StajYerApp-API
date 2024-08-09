@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StajYerApp_API.DTOs;
@@ -43,19 +42,12 @@ namespace StajYerApp_API.Controllers
 				return BadRequest("Bu email veya telefon numarası ile daha önce kayıt oluşturulmuş.");
 			}
 
-			// Rastgele şifre oluştur
-			var password = Utilities.GenerateRandomPassword(8);
-
-			
-			var passwordHasher = new PasswordHasher<CompanyUser>();
-			var hashedPassword = passwordHasher.HashPassword(null, password);
-
 			var addedUser = new CompanyUser
 			{
 				NameSurname = newUser.NameSurname,
 				Email = newUser.Email.ToLower(),
 				Phone = newUser.Phone,
-				Password = hashedPassword,
+				Password = Utilities.GenerateRandomPassword(8),
 				TaxNumber = newUser.TaxNumber,
 				TaxCityId = newUser.TaxCityId,
 				TaxOfficeId = newUser.TaxOfficeId,
@@ -85,14 +77,8 @@ namespace StajYerApp_API.Controllers
 			{
 				return Unauthorized();
 			}
-			var passwordHasher=new PasswordHasher<CompanyUser>();
-			var passwordVerificationResult = passwordHasher.VerifyHashedPassword(user, user.Password, loginUser.Password);
 
-			if (passwordVerificationResult==PasswordVerificationResult.Failed)
-			{
-				return Unauthorized();
-			}
-		
+
 
 			if (!user.HasSetPassword)
 			{
@@ -121,22 +107,18 @@ namespace StajYerApp_API.Controllers
 			{
 				return NotFound();
 			}
-			var passwordHasher = new PasswordHasher<CompanyUser>();
-			var passwordVerificationResult = passwordHasher.VerifyHashedPassword(null, user.Password, changeItem.OldPassword);
 
-			if (passwordVerificationResult==PasswordVerificationResult.Failed)
+			if (user.Password != changeItem.OldPassword)
 			{
-				return Unauthorized();
+				return BadRequest("Eski şifre yanlış.");
 			}
-			
 
 			if (user.HasSetPassword)
 			{
 				return BadRequest("Şifre zaten belirlenmiş.");
 			}
 
-			user.Password = passwordHasher.HashPassword(null, changeItem.NewPassword);
-
+			user.Password = changeItem.NewPassword;
 			user.HasSetPassword = true;
 			await _context.SaveChangesAsync();
 			return Ok(user);
@@ -184,45 +166,15 @@ namespace StajYerApp_API.Controllers
 			{
 				return Unauthorized();
 			}
-			var passwordHasher = new PasswordHasher<CompanyUser>();
 
-			bool isPasswordHashed = false;
-			try
-			{
-				passwordHasher.VerifyHashedPassword(null, user.Password, passModel.oldPassword);
-				isPasswordHashed = true;
-			}
-			catch (FormatException)
-			{
-				isPasswordHashed = false;
-					
-			}
 
-			if (isPasswordHashed)
-			{
-				var passwordVerificationResult = passwordHasher.VerifyHashedPassword(null, user.Password, passModel.oldPassword);
-				if (passwordVerificationResult == PasswordVerificationResult.Failed)
-				{
-					return Unauthorized("Eski şifre yanlış.");
-				}
-			}
-			else
-			{
-				//  eski şifre hashlenmemişse doğrudan kontrol et (eski oluşturduğumuz hesaplar için geçerli)
-				if (user.Password != passModel.oldPassword)
-				{
-					return Unauthorized("Eski şifre yanlış.");
-				}
-			}
-
-			user.Password = passwordHasher.HashPassword(null, passModel.newPassword);
+			user.Password = passModel.newPassword;
 
 			_context.Entry(user).State = EntityState.Modified;
 			await _context.SaveChangesAsync();
 			return NoContent();
 		}
 		#endregion
-
 		#region Şirket Kullanıcısı Bilgilerini Güncelleme
 		/// <summary>
 		/// Kullanıcı profili güncelleme
@@ -238,12 +190,10 @@ namespace StajYerApp_API.Controllers
 				return NotFound();
 			}
 
-			var passwordHasher = new PasswordHasher<CompanyUser>();
-
 			user.NameSurname = updateUser.NameSurname;
 			user.Email = updateUser.Email.ToLower();
 			user.Phone = updateUser.Phone;
-			user.Password = passwordHasher.HashPassword(null, updateUser.Password);
+			user.Password = updateUser.Password; // burada yine hashlenme gerekebilir.
 
 			await _context.SaveChangesAsync();
 
