@@ -229,6 +229,81 @@ namespace StajYerApp_API.Controllers
             adverts = await _context.Advertisements.Where(a => a.CompId == companyId).ToListAsync();
             return Ok(adverts);
         }
-        #endregion
-    }
+		#endregion
+
+
+		#region İlan Bilgilerini Güncelleme
+		/// <summary>
+		/// İlan profili güncelleme
+		/// </summary>
+		/// <param name="AdvertId">Güncellenmek istenen ilanın ID'si</param>
+		/// <param name="adv">Güncellenmiş ilanın bilgilerini tutar</param>
+		/// <returns>Başarılı veya başarısız sonucunu döndürür</returns>
+		[HttpPut("UpdateAdvert")]
+        public async Task<IActionResult> UpdateAdvert([FromBody] AdvertForUserModel advert)
+        {
+            var adv =await _context.Advertisements.FindAsync(advert.AdvertId);
+            if (adv!=null)
+            {
+                adv.AdvTitle = advert.AdvTitle;
+                adv.AdvAdress = advert.AdvAdress;
+                adv.AdvWorkType = advert.AdvWorkType;
+                adv.AdvDepartment = advert.AdvDepartment;
+                adv.AdvExpirationDate = advert.AdvExpirationDate;
+                adv.AdvIsActive = advert.AdvIsActive;
+                adv.AdvPhoto = advert.AdvPhoto;
+                adv.AdvAdressTitle = advert.AdvAdressTitle;
+                adv.AdvPaymentInfo = advert.AdvPaymentInfo;
+                adv.AdvJobDesc = advert.AdvJobDesc;
+                adv.AdvQualifications = advert.AdvQualifications;
+                adv.AdvAddInformation = advert.AdvAddInformation;
+                adv.AdvAppCount = advert.AdvAppCount;
+
+                _context.Entry(adv).State=EntityState.Modified;
+                _context.SaveChangesAsync();
+                return Ok();             
+                
+                
+            }
+            return NotFound();
+
+        }
+		#endregion
+
+		#region İlan Silme
+		/// <summary>
+		/// Belirtilen id'ye sahip kullanıcıyı siler
+		/// </summary>
+		/// <param name="AdvertId">Silinecek ilanın id'si</param>
+		/// <returns>Başarılı veya başarısız sonucunu döndürür</returns>
+		[HttpDelete("DeleteAdvert/{AdvertId}")]
+		public async Task<IActionResult> DeleteAdvert(int AdvertId)
+		{
+			var adv = await _context.Advertisements.FindAsync(AdvertId);
+
+			if (adv == null)
+			{
+				return NotFound("İlan Bulunamadı");
+			}
+
+			var advSaved = await _context.UsersSavedAdverts.Where(x => x.AdvertId == AdvertId).ToListAsync(); //saved adverts tablosunda gez
+
+			if (advSaved.Any())
+			{
+				_context.UsersSavedAdverts.RemoveRange(advSaved); //tabloda varsa silme uygulaycaz
+			}
+
+            var app = await _context.Applications.Where(x => x.AdvertId == AdvertId).ToListAsync(); //başvuru tablosu için aynı işlem
+            if (app.Any())
+            {
+                _context.Applications.RemoveRange(app); //tabloda varsa sil
+            }
+			_context.Advertisements.Remove(adv);
+			await _context.SaveChangesAsync();
+
+			return Ok("İlan Silme Başarılı");
+		}
+		#endregion
+
+	}
 }
