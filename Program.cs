@@ -5,6 +5,7 @@ using StajYerApp_API.Models;
 using StajYerApp_API.Services;
 using System.Reflection;
 using System.IO;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +56,13 @@ app.UseSwaggerUI(c =>
 //}
 
 app.UseHttpsRedirection();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+    RequestPath = "/uploads"
+});
 
 app.UseAuthorization();
 
