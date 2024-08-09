@@ -229,17 +229,48 @@ namespace StajYerApp_API.Controllers
             adverts = await _context.Advertisements.Where(a => a.CompId == companyId).ToListAsync();
             return Ok(adverts);
         }
-		#endregion
+        #endregion
 
+        #region Company User Id si ile İlanları Listeleme
+        [HttpGet("ListAdvertsByCompanyUserId/{companyUserId}")]
+        public async Task<ActionResult> ListAdvertsByCompanyUserId(int companyUserId)
+        {
+            int compId = await _context.Companies.Where(c => c.CompUserId == companyUserId).Select(u => u.CompId).FirstOrDefaultAsync();
+            var adverts = await _context.Advertisements.Where(a => a.CompId == compId).ToListAsync();
 
-		#region İlan Bilgilerini Güncelleme
-		/// <summary>
-		/// İlan profili güncelleme
-		/// </summary>
-		/// <param name="AdvertId">Güncellenmek istenen ilanın ID'si</param>
-		/// <param name="adv">Güncellenmiş ilanın bilgilerini tutar</param>
-		/// <returns>Başarılı veya başarısız sonucunu döndürür</returns>
-		[HttpPut("UpdateAdvert")]
+            if (adverts == null)
+            {
+                return NotFound();
+            }
+
+            foreach (var advert in adverts)
+            {
+                if (advert.AdvExpirationDate < DateTime.Now)
+                {
+                    advert.AdvIsActive = false;
+                    _context.Entry(advert).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                }
+
+                int count = await _context.Applications
+                    .CountAsync(a => a.AdvertId == advert.AdvertId);
+                advert.AdvAppCount = count.ToString();
+                _context.Entry(advert).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+            }
+            adverts = await _context.Advertisements.Where(a => a.CompId == compId).ToListAsync();
+            return Ok(adverts);
+        }
+        #endregion
+
+        #region İlan Bilgilerini Güncelleme
+        /// <summary>
+        /// İlan profili güncelleme
+        /// </summary>
+        /// <param name="AdvertId">Güncellenmek istenen ilanın ID'si</param>
+        /// <param name="adv">Güncellenmiş ilanın bilgilerini tutar</param>
+        /// <returns>Başarılı veya başarısız sonucunu döndürür</returns>
+        [HttpPut("UpdateAdvert")]
         public async Task<IActionResult> UpdateAdvert([FromBody] AdvertForUserModel advert)
         {
             var adv =await _context.Advertisements.FindAsync(advert.AdvertId);
