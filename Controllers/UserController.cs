@@ -72,43 +72,46 @@ namespace StajYerApp_API.Controllers
 
             return Ok("Kayıt işlemi başarılı.");
         }
-        #endregion
+		#endregion
 
-        #region Kullanıcı Giriş
-        /// <summary>
-        /// Kullanıcı girişi
-        /// </summary>
-        /// <param name="loginUser">Kullanıcı adı ve şifre içeren giriş modeli</param>
-        /// <returns>Kimliği doğrulanmış kullanıcıyı döndürür</returns>
-        [HttpPost("Login")]
-        public async Task<ActionResult<User>> Login([FromBody] UserLoginModel loginUser)
-        {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Uemail == loginUser.Uemail && u.Upassword == loginUser.Upassword);
+		#region Kullanıcı Giriş
+		/// <summary>
+		/// Kullanıcı girişi
+		/// </summary>
+		/// <param name="loginUser">Kullanıcı adı ve şifre içeren giriş modeli</param>
+		/// <returns>Kimliği doğrulanmış kullanıcıyı döndürür</returns>
+		[HttpPost("Login")]
+		public async Task<ActionResult<User>> Login([FromBody] UserLoginModel loginUser)
+		{
+			var user = await _context.Users
+				.FirstOrDefaultAsync(u => u.Uemail == loginUser.Uemail);
 
-            if (user == null)
-            {
-                return Unauthorized();
-            }
-            var passwordHasher=new PasswordHasher<User>();
-            var passwordVerificationResult = passwordHasher.VerifyHashedPassword(null, user.Upassword, loginUser.Upassword);
+			if (user == null)
+			{
+				return Unauthorized();
+			}
 
-            if (passwordVerificationResult==PasswordVerificationResult.Failed)
-            {
-                return Unauthorized();
-            }
+			var passwordHasher = new PasswordHasher<User>();
+			var passwordVerificationResult = passwordHasher.VerifyHashedPassword(user, user.Upassword, loginUser.Upassword);
 
-            return Ok(user);
-        }
-        #endregion
+			if (passwordVerificationResult == PasswordVerificationResult.Failed)
+			{
+				return Unauthorized();
+			}
 
-        #region Kullanıcı Silme
-        /// <summary>
-        /// belirtilen id'ye sahip kullanıcıyı siler
-        /// </summary>
-        /// <param name="deleteUserId">Silinecek kullanıcının id'si</param>
-        /// <returns>başarılı veya başarısız sonucunu döndürür</returns>
-        [HttpDelete("Delete/{deleteUserId}")]
+			return Ok(user);
+		}
+		#endregion
+
+
+
+		#region Kullanıcı Silme
+		/// <summary>
+		/// belirtilen id'ye sahip kullanıcıyı siler
+		/// </summary>
+		/// <param name="deleteUserId">Silinecek kullanıcının id'si</param>
+		/// <returns>başarılı veya başarısız sonucunu döndürür</returns>
+		[HttpDelete("Delete/{deleteUserId}")]
         public async Task<IActionResult> Delete(int deleteUserId)
         {
             var user = await _context.Users.FindAsync(deleteUserId);
