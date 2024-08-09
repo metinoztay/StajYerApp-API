@@ -57,12 +57,21 @@ app.UseSwaggerUI(c =>
 
 app.UseHttpsRedirection();
 
+var uploadsFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "UserProfilePhotos");
+
+if (!Directory.Exists(uploadsFolderPath))
+{
+    Directory.CreateDirectory(uploadsFolderPath);
+}
+
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
-    RequestPath = "/uploads"
+        Path.Combine(Directory.GetCurrentDirectory(), "UserProfilePhotos")),
+    RequestPath = "/UserProfilePhotos"
 });
+
 
 app.UseAuthorization();
 
