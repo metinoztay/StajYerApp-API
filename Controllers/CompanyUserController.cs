@@ -43,15 +43,19 @@ namespace StajYerApp_API.Controllers
 				return BadRequest("Bu email veya telefon numarası ile daha önce kayıt oluşturulmuş.");
 			}
 
+			// Rastgele şifre oluştur
 			var password = Utilities.GenerateRandomPassword(8);
+
+			
 			var passwordHasher = new PasswordHasher<CompanyUser>();
+			var hashedPassword = passwordHasher.HashPassword(null, password);
 
 			var addedUser = new CompanyUser
 			{
 				NameSurname = newUser.NameSurname,
 				Email = newUser.Email.ToLower(),
 				Phone = newUser.Phone,
-				Password = passwordHasher.HashPassword(null, password),
+				Password = hashedPassword,
 				TaxNumber = newUser.TaxNumber,
 				TaxCityId = newUser.TaxCityId,
 				TaxOfficeId = newUser.TaxOfficeId,
@@ -82,7 +86,7 @@ namespace StajYerApp_API.Controllers
 				return Unauthorized();
 			}
 			var passwordHasher=new PasswordHasher<CompanyUser>();
-			var passwordVerificationResult = passwordHasher.VerifyHashedPassword(null, user.Password, loginUser.Password);
+			var passwordVerificationResult = passwordHasher.VerifyHashedPassword(user, user.Password, loginUser.Password);
 
 			if (passwordVerificationResult==PasswordVerificationResult.Failed)
 			{
