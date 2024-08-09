@@ -60,7 +60,7 @@ namespace StajYerApp_API.Controllers
                 Upassword = passwordHasher.HashPassword(null, newUser.Upassword),
                 Ubirthdate = newUser.Ubirthdate,
                 Ugender = newUser.Ugender,
-                Uprofilephoto = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
+                Uprofilephoto = $"{Request.Scheme}://{Request.Host}/UserProfilePhotos/blank_profile_photo.png",
                 Uisactive = true,
                 UisEmailVerified = true, // E-posta doğrulaması düzenlenecek!!
                 UisPhoneVerified = false,

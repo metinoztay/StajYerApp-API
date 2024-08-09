@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="UserProfilePhotos\" />
+    <Folder Include="Photos\CompanyLogos\" />
   </ItemGroup>
 
 </Project>
