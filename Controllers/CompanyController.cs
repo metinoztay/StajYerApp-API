@@ -82,7 +82,7 @@ namespace StajYerApp_API.Controllers
                 CompAddressTitle = newCompany.CompAddressTitle,
                 CompSektor = newCompany.CompSektor,
                 CompDesc = newCompany.CompDesc,
-                CompLogo = newCompany.CompLogo,
+                CompLogo = $"{Request.Scheme}://{Request.Host}/Photos/CompanyLogos/blank_company_logo.png",
                 ComLinkedin = newCompany.ComLinkedin,
                 CompEmployeeCount = newCompany.CompEmployeeCount,
                 CompUserId = newCompany.CompUserId
@@ -108,7 +108,6 @@ namespace StajYerApp_API.Controllers
             company.CompAddressTitle = updateCompany.CompAddressTitle;
             company.CompSektor = updateCompany.CompSektor;
             company.CompDesc = updateCompany.CompDesc;
-            company.CompLogo = updateCompany.CompLogo;
             company.ComLinkedin = updateCompany.ComLinkedin;
             company.CompEmployeeCount = updateCompany.CompEmployeeCount;
 
