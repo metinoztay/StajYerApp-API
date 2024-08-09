@@ -8,6 +8,7 @@ using StajYerApp_API.Models;
 using StajYerApp_API.Services;
 using static System.Net.Mime.MediaTypeNames;
 using static System.Net.WebRequestMethods;
+using Microsoft.AspNetCore.Identity;
 
 namespace StajYerApp_API.Controllers
 {
@@ -47,13 +48,16 @@ namespace StajYerApp_API.Controllers
                 return BadRequest("Bu email kullanımdadır.");
             }
 
+            var passwordHasher=new PasswordHasher<User>();
+
+
             //string yeni = System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "Assets", "Images", "blank_profile_photo.jpg");
             var addedUser = new User
             {
                 Uname = Utilities.CapitalizeFirstLetter(newUser.Uname),
                 Usurname = newUser.Usurname.ToUpper(),
                 Uemail = newUser.Uemail.ToLower(),
-                Upassword = newUser.Upassword,
+                Upassword = passwordHasher.HashPassword(null, newUser.Upassword),
                 Ubirthdate = newUser.Ubirthdate,
                 Ugender = newUser.Ugender,
                 Uprofilephoto = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
@@ -83,6 +87,13 @@ namespace StajYerApp_API.Controllers
                 .FirstOrDefaultAsync(u => u.Uemail == loginUser.Uemail && u.Upassword == loginUser.Upassword);
 
             if (user == null)
+            {
+                return Unauthorized();
+            }
+            var passwordHasher=new PasswordHasher<User>();
+            var passwordVerificationResult = passwordHasher.VerifyHashedPassword(null, user.Upassword, loginUser.Upassword);
+
+            if (passwordVerificationResult==PasswordVerificationResult.Failed)
             {
                 return Unauthorized();
             }
@@ -174,41 +185,74 @@ namespace StajYerApp_API.Controllers
 
             return NoContent();
         }
-        #endregion
+		#endregion
 
-        #region Şifre Değiştirme
-        /// <summary>
-        /// Kullanıcı şifre değiştirme
-        /// </summary>
-        /// <param name="passModel">Eski ve yeni şifreyi içeren model</param>
-        /// <returns>başarılı veya başarısız sonucunu döndürür</returns>
-        [HttpPut("ChangePassword")]
-        public async Task<IActionResult> ChangePassword([FromBody] UserChangePasswordModel passModel)
-        {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.UserId == passModel.UserId && u.Upassword == passModel.oldPassword);
+		#region Şifre Değiştirme
+		/// <summary>
+		/// Kullanıcı şifre değiştirme
+		/// </summary>
+		/// <param name="passModel">Eski ve yeni şifreyi içeren model</param>
+		/// <returns>başarılı veya başarısız sonucunu döndürür</returns>
+		[HttpPut("ChangePassword")]
+		public async Task<IActionResult> ChangePassword([FromBody] UserChangePasswordModel passModel)
+		{
+			var user = await _context.Users
+				.FirstOrDefaultAsync(u => u.UserId == passModel.UserId);
 
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+			if (user == null)
+			{
+				return Unauthorized("Kullanıcı bulunamadı.");
+			}
 
-            user.Upassword = passModel.newPassword;
+			var passwordHasher = new PasswordHasher<User>();
 
-            _context.Entry(user).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
-        #endregion
+			// eski şifre hash uygulanmış mı kontrol
+			bool isPasswordHashed = false;
+			try
+			{
+				passwordHasher.VerifyHashedPassword(null, user.Upassword, passModel.oldPassword);
+				isPasswordHashed = true;
+			}
+			catch (FormatException)
+			{
+				// Eğer eski şifre hashlenmemişse bu bloğa girer
+				isPasswordHashed = false;
+			}
 
-        #region Kullanıcı Bilgilerini Güncelleme
-        /// <summary>
-        /// Kullanıcı profili güncelleme
-        /// </summary>
-        /// <param name="userId">Güncellenmek istenen kullanıcının ID'si</param>
-        /// <param name="updateUser">Güncellenmiş kullanıcı bilgilerini tutar</param>
-        /// <returns>Başarılı veya başarısız sonucunu döndürür</returns>
-        [HttpPut("UpdateUser")]
+			if (isPasswordHashed)
+			{
+				var passwordVerificationResult = passwordHasher.VerifyHashedPassword(null, user.Upassword, passModel.oldPassword);
+				if (passwordVerificationResult == PasswordVerificationResult.Failed)
+				{
+					return Unauthorized("Eski şifre yanlış.");
+				}
+			}
+			else
+			{
+				//  eski şifre hashlenmemişse doğrudan kontrol et (eski oluşturduğumuz hesaplar için geçerli)
+				if (user.Upassword != passModel.oldPassword)
+				{
+					return Unauthorized("Eski şifre yanlış.");
+				}
+			}
+
+			// yeni şifreyi hashleyip kaydet.
+			user.Upassword = passwordHasher.HashPassword(null, passModel.newPassword);
+
+			_context.Entry(user).State = EntityState.Modified;
+			await _context.SaveChangesAsync();
+			return NoContent();
+		}
+		#endregion
+
+		#region Kullanıcı Bilgilerini Güncelleme
+		/// <summary>
+		/// Kullanıcı profili güncelleme
+		/// </summary>
+		/// <param name="userId">Güncellenmek istenen kullanıcının ID'si</param>
+		/// <param name="updateUser">Güncellenmiş kullanıcı bilgilerini tutar</param>
+		/// <returns>Başarılı veya başarısız sonucunu döndürür</returns>
+		[HttpPut("UpdateUser")]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserModel updateUser)
         {
             var user = await _context.Users.FindAsync(updateUser.UserId);
@@ -330,8 +374,10 @@ namespace StajYerApp_API.Controllers
             {
                 return NotFound("User not found");
             }
+            var passwordHasher = new PasswordHasher<User>();
 
-            user.Upassword = model.NewPassword;
+
+            user.Upassword = passwordHasher.HashPassword(null, model.NewPassword);
             _context.Entry(user).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
