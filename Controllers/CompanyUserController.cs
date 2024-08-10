@@ -78,13 +78,6 @@ namespace StajYerApp_API.Controllers
 				return Unauthorized();
 			}
 
-
-
-			if (!user.HasSetPassword)
-			{
-				return Ok(new { Status = "SetNewPassword", User = user });
-			}
-
 			return Ok(user);
 		}
 		#endregion
@@ -175,6 +168,7 @@ namespace StajYerApp_API.Controllers
 			return NoContent();
 		}
 		#endregion
+
 		#region Şirket Kullanıcısı Bilgilerini Güncelleme
 		/// <summary>
 		/// Kullanıcı profili güncelleme

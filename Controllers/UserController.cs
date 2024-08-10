@@ -50,8 +50,6 @@ namespace StajYerApp_API.Controllers
 
             var passwordHasher=new PasswordHasher<User>();
 
-
-            //string yeni = System.IO.Path.Combine(_hostingEnvironment.WebRootPath, "Assets", "Images", "blank_profile_photo.jpg");
             var addedUser = new User
             {
                 Uname = Utilities.CapitalizeFirstLetter(newUser.Uname),
@@ -289,34 +287,7 @@ namespace StajYerApp_API.Controllers
         #endregion
 
 
-        //Profil Photo Güncelleme Eklenecek Kullanıcıdan dosya alınması gerek
-
         //Kullanıcı mail ve telefon onayı gerekli
-
-        #region Profil Fotoğrafı Silme
-        /// <summary>
-        /// belirtilen id'ye sahip kullanıcıyının fotoğrafını siler
-        /// </summary>
-        /// <param name="photoUserId">Fotoğrafı silinecek kullanıcının id'si</param>
-        /// <returns>başarılı veya başarısız sonucunu döndürür</returns>
-        [HttpPut("DeletePhoto/{photoUserId}")]
-        public async Task<IActionResult> DeletePhoto(int photoUserId)
-        {
-            var user = await _context.Users.FindAsync(photoUserId);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            //profile photo düzenlenecek
-            user.Uprofilephoto = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
-
-            _context.Entry(user).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-        #endregion
 
         #region Kullanıcı şifremi unuttum
         /// <summary>

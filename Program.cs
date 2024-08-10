@@ -19,7 +19,7 @@ builder.Services.AddCors(options =>
 		builder.AllowAnyHeader()
 		.AllowAnyMethod()
 		.SetIsOriginAllowed((host) => true)
-		.AllowCredentials();// SignalR ile credentialed CORS izinleri için gerekli
+		.AllowCredentials(); 
 	});
 });
 
