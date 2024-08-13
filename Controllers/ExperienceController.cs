@@ -79,7 +79,7 @@ namespace StajYerApp_API.Controllers
 
 
         [HttpDelete("DeleteExperience/{expId}")]
-        public async Task<ActionResult> DeleteProject(int expId)
+        public async Task<ActionResult> DeleteExperience(int expId)
         {
             var exp = await _context.Experiences
                 .FirstOrDefaultAsync(e => e.ExpId == expId);
