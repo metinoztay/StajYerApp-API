@@ -47,6 +47,8 @@ public partial class User
 
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 
+    public virtual ICollection<UserFollowedCompany> UserFollowedCompanies { get; set; } = new List<UserFollowedCompany>();
+
     public virtual ICollection<UserForgotPassword> UserForgotPasswords { get; set; } = new List<UserForgotPassword>();
 
     public virtual ICollection<UsersSavedAdvert> UsersSavedAdverts { get; set; } = new List<UsersSavedAdvert>();

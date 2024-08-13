@@ -34,4 +34,6 @@ public partial class Company
     public virtual ICollection<Advertisement> Advertisements { get; set; } = new List<Advertisement>();
 
     public virtual CompanyUser CompUser { get; set; } = null!;
+
+    public virtual ICollection<UserFollowedCompany> UserFollowedCompanies { get; set; } = new List<UserFollowedCompany>();
 }

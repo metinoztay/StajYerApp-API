@@ -45,13 +45,15 @@ public partial class Db6761Context : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<UserFollowedCompany> UserFollowedCompanies { get; set; }
+
     public virtual DbSet<UserForgotPassword> UserForgotPasswords { get; set; }
 
     public virtual DbSet<UsersSavedAdvert> UsersSavedAdverts { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=db6761.public.databaseasp.net; Database=db6761;uid=db6761; pwd=Nz3_9#aF@B5y; trustServerCertificate=true");
+        => optionsBuilder.UseSqlServer("Server=db6761.public.databaseasp.net; Database=db6761; User Id=db6761; Password=Nz3_9#aF@B5y; Encrypt=True; TrustServerCertificate=True; MultipleActiveResultSets=True;Connection Timeout=30");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -404,6 +406,21 @@ public partial class Db6761Context : DbContext
             entity.Property(e => e.Usurname)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<UserFollowedCompany>(entity =>
+        {
+            entity.HasKey(e => e.FollowId).HasName("PK__UserFollowedCompanies");
+
+            entity.HasOne(d => d.Comp).WithMany(p => p.UserFollowedCompanies)
+                .HasForeignKey(d => d.CompId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserFollowedCompanies_Companies");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserFollowedCompanies)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserFollowedCompanies_Users");
         });
 
         modelBuilder.Entity<UserForgotPassword>(entity =>

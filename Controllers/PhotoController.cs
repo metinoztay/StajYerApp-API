@@ -115,14 +115,14 @@ namespace StajYerApp_API.Controllers
             int id = await _context.Advertisements.MaxAsync(x => x.AdvertId) + 1;
             string fileName = file.FileName;
             string extension = Path.GetExtension(fileName);
-            var filePath = Path.Combine(uploadsFolderPath, id.ToString() + extension);
+            var filePath = Path.Combine(uploadsFolderPath, id.ToString()+fileName.Substring(0,5) + extension);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream);
             }
-            var fileUrl = $"{Request.Scheme}://{Request.Host}/Photos/AdvertPhotos/{id + extension}";
-            return Ok(new { fileUrl });
+            var fileUrl = $"{Request.Scheme}://{Request.Host}/Photos/AdvertPhotos/{id.ToString() + fileName.Substring(0, 5) + extension}";
+            return Ok(new {fileUrl});
         }
         #endregion
 
