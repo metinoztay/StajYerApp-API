@@ -61,10 +61,16 @@ app.UseHttpsRedirection();
 var rootFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "Photos");
 var userProfilePhotosPath = Path.Combine(rootFolderPath, "UserProfilePhotos");
 var companyLogosPath = Path.Combine(rootFolderPath, "CompanyLogos");
+var advertPhotosPath = Path.Combine(rootFolderPath, "AdvertPhotos");
 
 if (!Directory.Exists(userProfilePhotosPath))
 {
     Directory.CreateDirectory(userProfilePhotosPath);
+}
+
+if (!Directory.Exists(advertPhotosPath))
+{
+    Directory.CreateDirectory(advertPhotosPath);
 }
 
 if (!Directory.Exists(companyLogosPath))
@@ -80,9 +86,16 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.UseStaticFiles(new StaticFileOptions
 {
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Photos", "AdvertPhotos")),
+    RequestPath = "/Photos/AdvertPhotos"
+});
+
+app.UseStaticFiles(new StaticFileOptions
+{
     FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "Photos", "CompanyLogos")),
     RequestPath = "/Photos/CompanyLogos"
 });
+
 
 
 

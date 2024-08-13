@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <Folder Include="Photos\CompanyLogos\" />
+    <Folder Include="Photos\AdvertPhotos\" />
   </ItemGroup>
 
 </Project>
