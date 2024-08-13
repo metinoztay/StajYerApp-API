@@ -80,6 +80,34 @@ namespace StajYerApp_API.Controllers
         }
         #endregion
 
+        #region Şirket kullanıcısı ilan oluşturur
+        [HttpPost("CompUserAddAdvert")]
+        public async Task<ActionResult> CompUserAddAdvert([FromBody] NewCompanyUserAdvert newAdvert)
+        {
+            var advert = new Advertisement
+            {
+                CompId = await _context.Companies.Where(c => c.CompUserId == newAdvert.CompUserId).Select(u => u.CompId).FirstOrDefaultAsync(),
+                AdvTitle = newAdvert.AdvTitle,
+                AdvAdressTitle = newAdvert.AdvAdressTitle,
+                AdvAdress = newAdvert.AdvAdress,
+                AdvWorkType = newAdvert.AdvWorkType,
+                AdvDepartment = newAdvert.AdvDepartment,
+                AdvJobDesc = newAdvert.AdvJobDesc,
+                AdvQualifications = newAdvert.AdvQualifications,
+                AdvAddInformation = newAdvert.AdvAddInformation,
+                AdvExpirationDate = newAdvert.AdvExpirationDate,
+                AdvPhoto = newAdvert.AdvPhoto,
+                AdvPaymentInfo = newAdvert.AdvPaymentInfo,
+                AdvIsActive = true,
+                AdvAppCount = "0",
+            };
+
+            _context.Advertisements.Add(advert);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        #endregion
+
         #region Kullanıcı için ilan kaydedip silme
         [HttpPost("UserSaveDeleteAdvert")]
         public async Task<ActionResult> UserSaveDeleteAdvert([FromBody] UserSaveAdvertModel saveAdvert)
