@@ -84,5 +84,16 @@ namespace StajYerApp_API.Controllers
         }
         #endregion
 
+        #region Kullanıcının şirketi takip etme bilgisini alır
+        [HttpGet("GetUserIsFollowed/{userId}/{compId}")]
+        public async Task<ActionResult> GetUserIsFollowed(int userId,int compId)
+        {
+
+            bool isFollowing = await _context.UserFollowedCompanies.AnyAsync(u => u.UserId == userId && u.CompId == compId);
+
+           
+            return Ok(isFollowing);
+        }
+        #endregion
     }
 }
