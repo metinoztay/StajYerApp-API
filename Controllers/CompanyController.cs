@@ -82,7 +82,7 @@ namespace StajYerApp_API.Controllers
                 CompAddressTitle = newCompany.CompAddressTitle,
                 CompSektor = newCompany.CompSektor,
                 CompDesc = newCompany.CompDesc,
-                CompLogo = $"{Request.Scheme}://{Request.Host}/Photos/CompanyLogos/blank_company_logo.png",
+                CompLogo = newCompany.CompLogo,
                 ComLinkedin = newCompany.ComLinkedin,
                 CompEmployeeCount = newCompany.CompEmployeeCount,
                 CompUserId = newCompany.CompUserId
