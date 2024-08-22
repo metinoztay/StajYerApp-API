@@ -26,4 +26,6 @@ public partial class CompanyUser
     public bool HasSetPassword { get; set; }
 
     public virtual ICollection<Company> Companies { get; set; } = new List<Company>();
+
+    public virtual ICollection<CompanyUserForgotPassword> CompanyUserForgotPasswords { get; set; } = new List<CompanyUserForgotPassword>();
 }

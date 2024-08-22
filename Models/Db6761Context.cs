@@ -29,6 +29,8 @@ public partial class Db6761Context : DbContext
 
     public virtual DbSet<CompanyUser> CompanyUsers { get; set; }
 
+    public virtual DbSet<CompanyUserForgotPassword> CompanyUserForgotPasswords { get; set; }
+
     public virtual DbSet<District> Districts { get; set; }
 
     public virtual DbSet<Education> Educations { get; set; }
@@ -53,7 +55,7 @@ public partial class Db6761Context : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=db6761.public.databaseasp.net; Database=db6761; User Id=db6761; Password=Nz3_9#aF@B5y; Encrypt=True; TrustServerCertificate=True; MultipleActiveResultSets=True;Connection Timeout=30");
+        => optionsBuilder.UseSqlServer("Server=db6761.public.databaseasp.net; Database=db6761;uid=db6761; pwd=Nz3_9#aF@B5y; trustServerCertificate=true");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -227,6 +229,23 @@ public partial class Db6761Context : DbContext
             entity.Property(e => e.TaxNumber)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<CompanyUserForgotPassword>(entity =>
+        {
+            entity.HasKey(e => e.ForgotId);
+
+            entity.ToTable("CompanyUserForgotPassword");
+
+            entity.Property(e => e.ExpirationTime).HasColumnType("datetime");
+            entity.Property(e => e.VerifyCode)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.CompUser).WithMany(p => p.CompanyUserForgotPasswords)
+                .HasForeignKey(d => d.CompUserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_CompanyUserForgotPassword_CompanyUsers");
         });
 
         modelBuilder.Entity<District>(entity =>

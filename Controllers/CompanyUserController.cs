@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StajYerApp_API.DTOs;
@@ -194,5 +195,77 @@ namespace StajYerApp_API.Controllers
 			return NoContent();
 		}
 		#endregion
+
+		#region Kullanıcı şifremi unuttum
+		/// <summary>
+		/// Kullanıcı şifremi unuttum
+		/// </summary>
+		/// <param name="email">hesaba aşt email</param>
+		/// <returns></returns>
+		[HttpPost("ForgotPassword")]
+		public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel email)
+		{
+			var user = await _context.CompanyUsers.FirstOrDefaultAsync(u => u.Email == email.Email);
+
+			if (user == null)
+			{
+				return NotFound("User not found");
+			}
+
+			var verificationCode = new Random().Next(100000, 999999).ToString();
+
+			var userForgotPassword = new CompanyUserForgotPassword
+			{
+				CompUserId = user.CompUserId,
+				VerifyCode = verificationCode,
+				ExpirationTime = DateTime.UtcNow.AddMinutes(5) // kodun geçerlilik süresi 5 dakika
+			};
+
+			_context.CompanyUserForgotPasswords.Add(userForgotPassword);
+			await _context.SaveChangesAsync();
+
+			await _emailService.SendVerificationCodeAsync(user.Email, verificationCode);
+
+			return Ok("Verification code sent to your email");
+		}
+		#endregion
+
+
+		#region reset password
+		/// <summary>
+		/// Kullanıcı şifre sıfırlama
+		/// </summary>
+		/// <param name="model">UserId - VerificationCode - NewPassword değerlerini paramatere alır</param>
+		/// <returns></returns>
+		[HttpPost("ResetPassword")]
+		public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
+		{
+
+			int id = await _context.CompanyUsers.Where(u => u.Email == model.Email).Select(u => u.CompUserId).FirstOrDefaultAsync();
+			var record = await _context.CompanyUserForgotPasswords
+				.FirstOrDefaultAsync(u => u.CompUserId == id && u.VerifyCode == model.Code && u.ExpirationTime > DateTime.UtcNow);
+
+			if (record == null)
+			{
+				return BadRequest("Invalid or expired verification code");
+			}
+
+			var user = await _context.CompanyUsers.FindAsync(id);
+			if (user == null)
+			{
+				return NotFound("User not found");
+			}
+			var passwordHasher = new PasswordHasher<CompanyUser>();
+
+
+			user.Password = passwordHasher.HashPassword(null, model.NewPassword);
+			_context.Entry(user).State = EntityState.Modified;
+			await _context.SaveChangesAsync();
+
+			return Ok("Password reset successful");
+		}
+		#endregion
+
+
 	}
 }
