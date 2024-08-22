@@ -5,7 +5,7 @@ using StajYerApp_API.Models;
 
 /* 
  * app.mailersend.com
- * kullanıcı rofaf27986@foraro.com
+ * kullanıcı hiwagig108@inpsur.com
  * şifre Asdasdasd1 
  */
 namespace StajYerApp_API.Services
