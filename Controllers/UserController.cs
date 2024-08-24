@@ -123,30 +123,37 @@ namespace StajYerApp_API.Controllers
 
             return NoContent();
         }
-        #endregion
+		#endregion
 
-        #region Kullancı bilgilerini getirme
-        [HttpGet("GetUser/{userId}")]
-        public async Task<ActionResult> ListAllAdverts(int userId)
-        {
-            var user = await _context.Users.FindAsync(userId);
+		#region Kullancı bilgilerini getirme
+		[HttpGet("GetUser/{userId}")]
+		public async Task<ActionResult> GetUser(int userId)
+		{
+			var user = await _context.Users
+				.Include(u => u.Certificates)
+				.Include(u => u.Educations)
+				.Include(u => u.Experiences)
+				.Include(u => u.Projects)
+				
+				.FirstOrDefaultAsync(u => u.UserId == userId);
 
-            if (user == null)
-            {
-                return NotFound();
-            }
+			if (user == null)
+			{
+				return NotFound();
+			}
 
-            return Ok(user);
-        }
-        #endregion
+			return Ok(user);
+		}
+		#endregion
 
-        #region Kullanıcı Deaktif Etme
-        /// <summary>
-        /// belirtilen id'ye sahip kullanıcıyı deaktif eder
-        /// </summary>
-        /// <param name="deactivateUserId">Deactif edilecek kullanıcının id'si</param>
-        /// <returns>başarılı veya başarısız sonucunu döndürür</returns>
-        [HttpPost("Deactivate/{deactivateUserId}")]
+
+		#region Kullanıcı Deaktif Etme
+		/// <summary>
+		/// belirtilen id'ye sahip kullanıcıyı deaktif eder
+		/// </summary>
+		/// <param name="deactivateUserId">Deactif edilecek kullanıcının id'si</param>
+		/// <returns>başarılı veya başarısız sonucunu döndürür</returns>
+		[HttpPost("Deactivate/{deactivateUserId}")]
         public async Task<IActionResult> Deactivate(int deactivateUserId)
         {
             var user = await _context.Users.FindAsync(deactivateUserId);
