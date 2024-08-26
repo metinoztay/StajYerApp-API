@@ -75,6 +75,8 @@ public partial class Db6761Context : DbContext
         {
             entity.HasKey(e => e.AdvertId);
 
+            entity.ToTable(tb => tb.HasTrigger("trg_DeleteAdvertisement"));
+
             entity.Property(e => e.AdvAddInformation)
                 .HasMaxLength(1000)
                 .IsUnicode(false);
@@ -109,8 +111,7 @@ public partial class Db6761Context : DbContext
 
             entity.HasOne(d => d.Comp).WithMany(p => p.Advertisements)
                 .HasForeignKey(d => d.CompId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Advertisements_Companies");
+                .HasConstraintName("FK_Advertisement_Companies");
         });
 
         modelBuilder.Entity<Application>(entity =>
@@ -171,6 +172,8 @@ public partial class Db6761Context : DbContext
         modelBuilder.Entity<Company>(entity =>
         {
             entity.HasKey(e => e.CompId);
+
+            entity.ToTable(tb => tb.HasTrigger("trg_DeleteCompany"));
 
             entity.Property(e => e.ComLinkedin)
                 .HasMaxLength(255)

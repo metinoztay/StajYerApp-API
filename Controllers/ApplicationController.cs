@@ -128,18 +128,27 @@ namespace StajYerApp_API.Controllers
 		/// <returns>İlana başvuran kullanıcıların listesini döner</returns>
 		/// <response code="200">Başvuran kullanıcılar başarıyla getirildi</response>
 		/// <response code="404">İlana ait başvuru bulunamadı</response>
+		
 		[HttpGet("ListAdvertsApplications/{advertId}")]
 		public async Task<ActionResult> ListAdvertsApplications(int advertId)
 		{
-			var apps = await _context.Applications.Where(a => a.AdvertId == advertId).ToListAsync();
+			var apps = await _context.Applications
+				.Where(a => a.AdvertId == advertId)
+				.ToListAsync();
 
-			if (apps == null)
+			if (apps == null || !apps.Any())
 			{
 				return NotFound();
 			}
 
+			var userIds = apps.Select(app => app.UserId).Distinct().ToList();
+
 			var appliedUsers = await _context.Users
-				.Where(u => apps.Select(app => app.UserId).Contains(u.UserId) && u.Uisactive)
+				.Include(u => u.Certificates)
+				.Include(u => u.Educations)
+				.Include(u => u.Experiences)
+				.Include(u => u.Projects)
+				.Where(u => userIds.Contains(u.UserId) && u.Uisactive)
 				.ToListAsync();
 
 			return Ok(appliedUsers);

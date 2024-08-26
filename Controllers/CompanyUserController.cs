@@ -255,10 +255,10 @@ namespace StajYerApp_API.Controllers
 			{
 				return NotFound("User not found");
 			}
-			var passwordHasher = new PasswordHasher<CompanyUser>();
 
 
-			user.Password = passwordHasher.HashPassword(null, model.NewPassword);
+
+			user.Password = model.NewPassword;
 			_context.Entry(user).State = EntityState.Modified;
 			await _context.SaveChangesAsync();
 
