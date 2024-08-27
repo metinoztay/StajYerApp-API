@@ -39,83 +39,23 @@ namespace StajYerApp_API.Controllers
 		[HttpGet("ListUsersAllApplications/{userId}")]
 		public async Task<ActionResult<UserApplicationsDto>> ListUsersAllApplications(int userId)
 		{
-			var user = await _context.Users
-				.Include(u => u.Applications)
-				.ThenInclude(a => a.Advert)
-				.ThenInclude(ad => ad.Comp)
-				.Include(u => u.Certificates)
-				.Include(u => u.Educations)
-				.Include(u => u.Experiences)
-				.Include(u => u.Projects)
-				.FirstOrDefaultAsync(u => u.UserId == userId);
 
-			if (user == null)
+			var apps = await _context.Applications.Where(a => a.UserId == userId).ToListAsync();
+
+			if (apps == null)
 			{
 				return NotFound();
 			}
 
-			var userApplicationsDto = new UserApplicationsDto
-			{
-				UserId = user.UserId,
-				Uname = user.Uname,
-				Usurname = user.Usurname,
-				Uemail = user.Uemail,
-				Uphone = user.Uphone,
-				Ubirthdate = user.Ubirthdate,
-				Ugender = user.Ugender,
-				Ulinkedin = user.Ulinkedin,
-				Ucv = user.Ucv,
-				Ugithub = user.Ugithub,
-				Udesc = user.Udesc,
-				Uprofilephoto = user.Uprofilephoto,
-				Certificates = user.Certificates.Select(c => new CertificateDto
-				{
-					CertId = c.CertId,
-					CertName = c.CertName,
-					CerCompanyName = c.CerCompanyName,
-					CertDesc = c.CertDesc,
-					CertDate = c.CertDate
-				}).ToList(),
-				Educations = user.Educations.Select(e => new EducationDto
-				{
-					EduId = e.EduId,
-					UniId = e.UniId,
-					ProgId = e.ProgId,
-					EduStartDate = e.EduStartDate,
-					EduFinishDate = e.EduFinishDate,
-					EduGano = e.EduGano,
-					EduSituation = e.EduSituation,
-					EduDesc = e.EduDesc
-				}).ToList(),
-				Experiences = user.Experiences.Select(ex => new ExperienceDto
-				{
-					ExpId = ex.ExpId,
-					ExpPosition = ex.ExpPosition,
-					ExpCompanyName = ex.ExpCompanyName,
-					ExpCityId = ex.ExpCityId,
-					ExpStartDate = ex.ExpStartDate,
-					ExpFinishDate = ex.ExpFinishDate,
-					ExpWorkType = ex.ExpWorkType,
-					ExpDesc = ex.ExpDesc
-				}).ToList(),
-				Projects = user.Projects.Select(p => new ProjectDto
-				{
-					ProId = p.ProId,
-					ProName = p.ProName,
-					ProDesc = p.ProDesc,
-					ProGithub = p.ProGithub
-				}).ToList(),
-				Applications = user.Applications.Select(app => new ApplicationDto
-				{
-					AppId = app.AppId,
-					AdvertId = app.AdvertId,
-					AppDate = app.AppDate,
-					AppLetter = app.AppLetter,
-					CompName = app.Advert.Comp.CompName
-				}).ToList()
-			};
+			var advertList = await _context.Advertisements
+				.Where(a => apps.Select(app => app.AdvertId).Contains(a.AdvertId))
+				.ToListAsync();
 
-			return Ok(userApplicationsDto);
+			foreach (var adv in advertList)
+			{
+				adv.Comp = await _context.Companies.FindAsync(adv.CompId);
+			}
+			return Ok(advertList);
 		}
 
 		#endregion
@@ -128,7 +68,7 @@ namespace StajYerApp_API.Controllers
 		/// <returns>İlana başvuran kullanıcıların listesini döner</returns>
 		/// <response code="200">Başvuran kullanıcılar başarıyla getirildi</response>
 		/// <response code="404">İlana ait başvuru bulunamadı</response>
-		
+
 		[HttpGet("ListAdvertsApplications/{advertId}")]
 		public async Task<ActionResult> ListAdvertsApplications(int advertId)
 		{

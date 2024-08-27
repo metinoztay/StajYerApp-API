@@ -93,38 +93,48 @@ namespace StajYerApp_API.Controllers
 
             return Ok(new { fileUrl });
         }
-        #endregion
+		#endregion
 
-        #region Advert Photo Upload
-        [HttpPost("UploadAdvertPhoto")]
-        public async Task<IActionResult> UploadAdvertPhoto([FromForm] IFormFile file)
-        {
-            //Var olan photo silme eklenebilir..
+		#region Advert Photo Upload
+		[HttpPost("UploadAdvertPhoto")]
+		public async Task<IActionResult> UploadAdvertPhoto([FromForm] IFormFile file)
+		{
+			try
+			{
+				if (file == null || file.Length == 0)
+					return BadRequest("No file uploaded");
 
-            if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded");
+				var uploadsFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "Photos", "AdvertPhotos");
 
-            var uploadsFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "Photos", "AdvertPhotos");
+				if (!Directory.Exists(uploadsFolderPath))
+				{
+					Directory.CreateDirectory(uploadsFolderPath);
+				}
 
-            // Klasör var mı kontrol et ve oluştur
-            if (!Directory.Exists(uploadsFolderPath))
-            {
-                Directory.CreateDirectory(uploadsFolderPath);
-            }
+				int id = await _context.Advertisements.AnyAsync()
+					? await _context.Advertisements.MaxAsync(x => x.AdvertId) + 1
+					: 1; // Eğer hiç kayıt yoksa, ID'yi 1 olarak ayarlayın
 
-            int id = await _context.Advertisements.MaxAsync(x => x.AdvertId) + 1;
-            string fileName = file.FileName;
-            string extension = Path.GetExtension(fileName);
-            var filePath = Path.Combine(uploadsFolderPath, id.ToString()+fileName.Substring(0,5) + extension);
+				string fileName = file.FileName;
+				string extension = Path.GetExtension(fileName);
+				var filePath = Path.Combine(uploadsFolderPath, id.ToString() + fileName.Substring(0, 5) + extension);
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-            var fileUrl = $"{Request.Scheme}://{Request.Host}/Photos/AdvertPhotos/{id.ToString() + fileName.Substring(0, 5) + extension}";
-            return Ok(new {fileUrl});
-        }
-        #endregion
+				using (var stream = new FileStream(filePath, FileMode.Create))
+				{
+					await file.CopyToAsync(stream);
+				}
 
-    }
+				var fileUrl = $"{Request.Scheme}://{Request.Host}/Photos/AdvertPhotos/{id.ToString() + fileName.Substring(0, 5) + extension}";
+				return Ok(new { fileUrl });
+			}
+			catch (Exception ex)
+			{
+				// Hata mesajını döndürün
+				return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+			}
+		}
+
+		#endregion
+
+	}
 }
