@@ -187,9 +187,7 @@ public partial class Db6761Context : DbContext
             entity.Property(e => e.CompContactMail)
                 .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.CompDesc)
-                .HasMaxLength(500)
-                .IsUnicode(false);
+            entity.Property(e => e.CompDesc).IsUnicode(false);
             entity.Property(e => e.CompFoundationYear)
                 .HasMaxLength(4)
                 .IsUnicode(false)
