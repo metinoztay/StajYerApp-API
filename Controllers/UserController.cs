@@ -226,7 +226,6 @@ namespace StajYerApp_API.Controllers
 				// Eğer eski şifre hashlenmemişse bu bloğa girer
 				isPasswordHashed = false;
 			}
-
 			if (isPasswordHashed)
 			{
 				var passwordVerificationResult = passwordHasher.VerifyHashedPassword(null, user.Upassword, passModel.oldPassword);

@@ -77,9 +77,7 @@ public partial class Db6761Context : DbContext
 
             entity.ToTable(tb => tb.HasTrigger("trg_DeleteAdvertisement"));
 
-            entity.Property(e => e.AdvAddInformation)
-                .HasMaxLength(1000)
-                .IsUnicode(false);
+            entity.Property(e => e.AdvAddInformation).IsUnicode(false);
             entity.Property(e => e.AdvAdress)
                 .HasMaxLength(255)
                 .IsUnicode(false);
@@ -93,15 +91,11 @@ public partial class Db6761Context : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.AdvExpirationDate).HasColumnType("datetime");
-            entity.Property(e => e.AdvJobDesc)
-                .HasMaxLength(1000)
-                .IsUnicode(false);
+            entity.Property(e => e.AdvJobDesc).IsUnicode(false);
             entity.Property(e => e.AdvPhoto)
                 .HasMaxLength(500)
                 .IsUnicode(false);
-            entity.Property(e => e.AdvQualifications)
-                .HasMaxLength(1000)
-                .IsUnicode(false);
+            entity.Property(e => e.AdvQualifications).IsUnicode(false);
             entity.Property(e => e.AdvTitle)
                 .HasMaxLength(100)
                 .IsUnicode(false);
@@ -401,9 +395,7 @@ public partial class Db6761Context : DbContext
             entity.Property(e => e.Ucv)
                 .HasMaxLength(255)
                 .IsUnicode(false);
-            entity.Property(e => e.Udesc)
-                .HasMaxLength(500)
-                .IsUnicode(false);
+            entity.Property(e => e.Udesc).IsUnicode(false);
             entity.Property(e => e.Uemail)
                 .HasMaxLength(100)
                 .IsUnicode(false);
