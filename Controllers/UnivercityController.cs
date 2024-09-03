@@ -32,11 +32,26 @@ namespace StajYerApp_API.Controllers
 
             return Ok(univercities);
         }
-        #endregion
+		#endregion
+
+		#region Universiteleri listele
+		[HttpGet("ListUnivercities{uniId}")]
+		public async Task<ActionResult> ListUnivercitiesById(int uniId)
+		{
+			var univercities = await _context.Univercities.FirstOrDefaultAsync(u=>u.UniId==uniId);
+
+			if (univercities == null)
+			{
+				return NotFound();
+			}
+
+			return Ok(univercities);
+		}
+		#endregion
 
 
-        #region Programları listele
-        [HttpGet("ListPrograms")]
+		#region Programları listele
+		[HttpGet("ListPrograms")]
         public async Task<ActionResult> ListPrograms()
         {
             var programs = await _context.Programs.ToListAsync();
@@ -48,6 +63,21 @@ namespace StajYerApp_API.Controllers
 
             return Ok(programs);
         }
-        #endregion
-    }
+		#endregion
+
+		#region Programları listele
+		[HttpGet("ListPrograms{id}")]
+		public async Task<ActionResult> ListProgramsById(int id)
+		{
+			var programs = await _context.Programs.FirstOrDefaultAsync(u => u.ProgId == id);
+
+			if (programs == null)
+			{
+				return NotFound();
+			}
+
+			return Ok(programs);
+		}
+		#endregion
+	}
 }

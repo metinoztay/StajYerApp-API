@@ -116,7 +116,9 @@ namespace StajYerApp_API.Controllers
 
 			if (!user.UisEmailVerified)
 			{
-				return BadRequest(new { message = "Email onayı gerekli. Lütfen email doğrulama kodunu gönderin.", isEmailVerified = user.UisEmailVerified });
+				return BadRequest(new
+				{ message = "Email onayı gerekli. Lütfen email doğrulama kodunu gönderin.",
+					isEmailVerified = user.UisEmailVerified });
 			}
 
 			var application = new Application
@@ -129,7 +131,9 @@ namespace StajYerApp_API.Controllers
 
 			_context.Applications.Add(application);
 			await _context.SaveChangesAsync();
-			return Ok(new { message = "Başvuru başarıyla yapıldı", isEmailVerified = user.UisEmailVerified });
+			return Ok(new {
+				message = "Başvuru başarıyla yapıldı",
+				isEmailVerified = user.UisEmailVerified });
 		}
 		#endregion
 
@@ -183,7 +187,8 @@ namespace StajYerApp_API.Controllers
 		public async Task<IActionResult> VerifyEmail([FromBody] VerifyCodeModel model)
 		{
 			var record = await _context.UserForgotPasswords
-				.FirstOrDefaultAsync(u => u.UserId == model.UserId && u.VerifyCode == model.Code && u.ExpirationTime > DateTime.UtcNow);
+				.FirstOrDefaultAsync(u => u.UserId == model.UserId 
+				&& u.VerifyCode == model.Code && u.ExpirationTime > DateTime.UtcNow);
 
 			if (record == null)
 			{

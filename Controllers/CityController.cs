@@ -33,10 +33,24 @@ namespace StajYerApp_API.Controllers
 
             return Ok(cities);
         }
-        #endregion
+		#endregion
+		#region Şehirleri Listeleme
+		[HttpGet("ListCities{id}")]
+		public async Task<ActionResult> ListCitiesById(int id)
+		{
+			var cities = await _context.Cities.FirstOrDefaultAsync(u=>u.CityId==id);
 
-        #region İlçeleri Listeleme
-        [HttpGet("ListDistricts/{cityId}")]
+			if (cities == null)
+			{
+				return NotFound();
+			}
+
+			return Ok(cities);
+		}
+		#endregion
+
+		#region İlçeleri Listeleme
+		[HttpGet("ListDistricts/{cityId}")]
         public async Task<ActionResult> ListDistricts(int cityId)
         {
             var districts = await _context.Districts.Where(c => c.CityId == cityId).ToListAsync();
